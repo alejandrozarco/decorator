@@ -2,7 +2,10 @@
 
 <img src="docs/img/decorator-small.png" alt="Decorator plugin: brushed-steel pedal with Saturation and Volume knobs" width="150" align="right">
 
-# Decorator
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/img/logo-dark.png">
+  <img src="docs/img/logo.png" alt="Decorator" width="330">
+</picture>
 
 **Tape saturation from neural captures of a real pedal.** Free AU, VST3 and standalone app for macOS 12 or later, on Apple silicon and Intel.
 
