@@ -1,0 +1,92 @@
+name: Windows + Linux builds
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to attach the builds to (leave empty to only build)"
+        required: false
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  linux:
+    runs-on: ubuntu-22.04   # older glibc, so the binaries run on most current distros
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Build VST3, LV2, CLAP (DPF)
+        run: make -C source/linux -j4
+      - name: Package
+        run: |
+          set -e
+          cd source/bin
+          ls -la
+          mkdir -p ../../out/Decorator-VST3-Linux ../../out/Decorator-Linux
+          cp -r Decorator.vst3 ../../out/Decorator-VST3-Linux/
+          cp -r Decorator.vst3 Decorator.lv2 Decorator.clap ../../out/Decorator-Linux/
+          cp ../../release/README-linux.txt "../../out/Decorator-VST3-Linux/READ ME.txt"
+          cp ../../release/README-linux.txt "../../out/Decorator-Linux/READ ME.txt"
+          cd ../../out
+          zip -qr Decorator-VST3-Linux.zip Decorator-VST3-Linux
+          zip -qr Decorator-Linux.zip Decorator-Linux
+          ls -la
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: out/*.zip
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Get VST3 SDK
+        shell: bash
+        run: cd source/iPlug2/Dependencies/IPlug && ./download-iplug-sdks.sh
+      - uses: microsoft/setup-msbuild@v2
+      - name: Build VST3 and app
+        shell: pwsh
+        run: |
+          cd source/Decorator
+          msbuild Decorator.sln /m /p:Configuration=Release /p:Platform=x64 /t:Decorator-vst3 /t:Decorator-app
+      - name: Package
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          Get-ChildItem -Recurse source/Decorator/build-win | Select-Object FullName | Format-Table -AutoSize | Out-String -Width 400
+          $vst3 = Get-ChildItem -Recurse -Directory -Filter "Decorator.vst3" source/Decorator/build-win, "$env:CommonProgramW6432\VST3" -ErrorAction SilentlyContinue | Select-Object -First 1
+          if (-not $vst3) { throw "Decorator.vst3 bundle not found" }
+          $exe = Get-ChildItem -Recurse -File -Filter "Decorator.exe" source/Decorator/build-win | Select-Object -First 1
+          New-Item -ItemType Directory -Force out/Decorator-VST3-Windows, out/Decorator-Windows | Out-Null
+          Copy-Item -Recurse $vst3.FullName out/Decorator-VST3-Windows/
+          Copy-Item -Recurse $vst3.FullName out/Decorator-Windows/
+          if ($exe) { Copy-Item $exe.FullName out/Decorator-Windows/ }
+          Copy-Item release/README-windows.txt "out/Decorator-VST3-Windows/READ ME.txt"
+          Copy-Item release/README-windows.txt "out/Decorator-Windows/READ ME.txt"
+          Compress-Archive -Path out/Decorator-VST3-Windows -DestinationPath out/Decorator-VST3-Windows.zip
+          Compress-Archive -Path out/Decorator-Windows -DestinationPath out/Decorator-Windows.zip
+          Get-ChildItem out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: out/*.zip
+
+  attach:
+    needs: [linux, windows]
+    if: github.event_name == 'push' || inputs.tag != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dl
+      - name: Upload to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: gh release upload "$TAG" dl/*/*.zip --clobber --repo "$GITHUB_REPOSITORY"

@@ -8,7 +8,6 @@
 #include "Decorator.h"
 #include "IPlug_include_in_plug_src.h"
 #include "IControls.h"
-#include "DecoratorModels.inc"
 #include "DecoratorFont.inc"
 #include "DecoratorAssets.inc"
 #include "nanovg.h"
@@ -18,44 +17,6 @@ using namespace igraphics;
 
 namespace
 {
-// Captures, in knob order. Position is the measured clock position (hours, 7 = min, 17 = max).
-struct Capture
-{
-  const char* file;
-  int latency; // samples of delay the trained model adds (measured against the capture recording)
-};
-constexpr Capture kCaptures[kNumCaptures] = {
-  {"decorator_sat_0700.nam", 21}, {"decorator_sat_0830.nam", 21}, {"decorator_sat_0900.nam", 21},
-  {"decorator_sat_1000.nam", 22}, {"decorator_sat_1100.nam", 23}, {"decorator_sat_1200.nam", 24},
-  {"decorator_sat_1300.nam", 24}, {"decorator_sat_1400.nam", 25}, {"decorator_sat_1500.nam", 26},
-  {"decorator_sat_1600.nam", 26}};
-constexpr int kMaxLatency = 26;
-
-// Knob anchors: position (hours) -> capture index. 7:00-8:00 and 4:00-5:00 are dead zones on the pedal.
-struct Anchor
-{
-  double pos;
-  int capture;
-};
-constexpr Anchor kAnchors[] = {{7.0, 0}, {8.0, 0}, {8.5, 1}, {9.0, 2}, {10.0, 3}, {11.0, 4}, {12.0, 5},
-                               {13.0, 6}, {14.0, 7}, {15.0, 8}, {16.0, 9}, {17.0, 9}};
-constexpr int kNumAnchors = sizeof(kAnchors) / sizeof(kAnchors[0]);
-
-// Volume curve, dB relative to Volume max (captures were made at max), every quarter hour from 7:00 to 5:00.
-// Monotone cubic fit through the measurements at 7, 9, 10:15 (est.), 12, 3 and 5 o'clock; in-between values are estimates.
-constexpr double kVolStepHours = 0.25;
-constexpr double kVolDb[] = {-26.00,-25.96,-25.83,-25.62,-25.35,-25.01,-24.62,-24.18,-23.70,-22.85,-21.48,-19.84,-18.19,-16.80,-15.64,-14.52,-13.45,-12.43,-11.46,-10.55,-9.70,-8.88,-8.06,-7.24,-6.45,-5.68,-4.94,-4.24,-3.60,-3.01,-2.50,-2.06,-1.70,-1.39,-1.10,-0.82,-0.57,-0.35,-0.18,-0.06,0.00};
-
-// Calibration baked into the captures.
-constexpr double kModelInputDbu = 6.1;   // 0 dBFS at the model input
-constexpr double kModelOutputDbu = 12.5; // 0 dBFS at the model output
-
-inline double MonoIn(sample** in, int nIn, int i)
-{
-  if (nIn <= 0)
-    return 0.0;
-  return nIn == 1 ? in[0][i] : 0.5 * (in[0][i] + in[1][i]);
-}
 
 void ClockString(double hours, WDL_String& str)
 {
@@ -260,163 +221,25 @@ Decorator::Decorator(const InstanceInfo& info)
   };
 }
 
-bool Decorator::_LoadModels(double sampleRate, int maxBlockSize)
-{
-  for (int i = 0; i < kNumCaptures; i++)
-  {
-    try
-    {
-      const nlohmann::json config = nlohmann::json::parse(decorator_models::kModels[i]);
-      std::unique_ptr<nam::DSP> dsp = nam::get_dsp(config);
-      if (auto* s = dynamic_cast<nam::SlimmableModel*>(dsp.get()))
-        s->SetSlimmableSize(1.0); // full-size A2 network
-      mModels[i] = std::make_unique<ResamplingNAM>(std::move(dsp), sampleRate);
-      mModels[i]->Reset(sampleRate, maxBlockSize);
-    }
-    catch (const std::exception& e)
-    {
-      mLoadError = std::string("Model ") + kCaptures[i].file + " failed: " + e.what();
-      return false;
-    }
-  }
-  mLoadError.clear();
-  return true;
-}
-
 void Decorator::OnReset()
 {
-  mReady = false;
-  const double sr = GetSampleRate();
-  const int block = std::max(GetBlockSize(), 64);
-  mMaxBlock = block;
-  bool ok = true;
-  if (!mModels[0])
-    ok = _LoadModels(sr, block);
-  else
-    for (auto& m : mModels)
-      m->Reset(sr, block);
-
-  mIn.assign(block, 0.0);
-  for (int i = 0; i < kNumCaptures; i++)
-  {
-    mOut[i].assign(block, 0.0);
-    mDelayLine[i].assign(kMaxLatency - kCaptures[i].latency + 1, 0.0);
-    mDelayPos[i] = 0;
-  }
-  mDryDelay.assign(kMaxLatency + 1, 0.0);
-  mDryPos = 0;
-  SetLatency(kMaxLatency);
-  mFirstBlock = true;
-  mReady = ok;
+  mEngine.Reset(GetSampleRate(), GetBlockSize());
+  SetLatency(decorator::Engine::Latency());
 }
 
-void Decorator::_TargetWeights(double knob, std::array<double, kNumCaptures>& w) const
+decorator::Params Decorator::_Params() const
 {
-  w.fill(0.0);
-  knob = std::clamp(knob, kAnchors[0].pos, kAnchors[kNumAnchors - 1].pos);
-  for (int k = 0; k < kNumAnchors - 1; k++)
-  {
-    const Anchor& a = kAnchors[k];
-    const Anchor& b = kAnchors[k + 1];
-    if (knob <= b.pos)
-    {
-      const double t = (knob - a.pos) / (b.pos - a.pos);
-      w[a.capture] += 1.0 - t;
-      w[b.capture] += t;
-      return;
-    }
-  }
-  w[kAnchors[kNumAnchors - 1].capture] = 1.0;
-}
-
-double Decorator::_VolumeDb(double knob)
-{
-  constexpr int n = sizeof(kVolDb) / sizeof(kVolDb[0]);
-  const double x = std::clamp((knob - 7.0) / kVolStepHours, 0.0, double(n - 1));
-  const int i = std::min(int(x), n - 2);
-  const double t = x - i;
-  return kVolDb[i] + t * (kVolDb[i + 1] - kVolDb[i]);
+  decorator::Params p;
+  p.saturation = GetParam(kSaturation)->Value();
+  p.volume = GetParam(kVolume)->Value();
+  p.interfaceDbu = GetParam(kInterfaceDbu)->Value();
+  p.bypass = GetParam(kBypass)->Bool();
+  return p;
 }
 
 void Decorator::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
-  const int nIn = NInChansConnected();
-  const int nOut = NOutChansConnected();
-  if (!mReady || nFrames <= 0)
-  {
-    for (int c = 0; c < nOut; c++)
-      for (int s = 0; s < nFrames; s++)
-        outputs[c][s] = (nIn > 0 ? inputs[std::min(c, nIn - 1)][s] : 0.0);
-    return;
-  }
-
-  const double ifDbu = GetParam(kInterfaceDbu)->Value();
-  const double inGain = std::pow(10.0, (ifDbu - kModelInputDbu) / 20.0);
-  const double targetOut = std::pow(10.0, (_VolumeDb(GetParam(kVolume)->Value()) + kModelOutputDbu - ifDbu) / 20.0);
-  std::array<double, kNumCaptures> target;
-  _TargetWeights(GetParam(kSaturation)->Value(), target);
-  const double targetBypass = GetParam(kBypass)->Bool() ? 1.0 : 0.0;
-  if (mFirstBlock)
-  {
-    mWeight = target;
-    mOutGain = targetOut;
-    mBypassMix = targetBypass;
-    mFirstBlock = false;
-  }
-  const double smooth = 1.0 - std::exp(-1.0 / (0.02 * GetSampleRate())); // ~20 ms
-
-  for (int start = 0; start < nFrames; start += mMaxBlock)
-  {
-    const int n = std::min(mMaxBlock, nFrames - start);
-    for (int s = 0; s < n; s++)
-      mIn[s] = static_cast<NAM_SAMPLE>(MonoIn(inputs, nIn, start + s) * inGain);
-
-    // Only run the captures that are (or are about to be) audible: every capture with weight,
-    // plus one neighbour on each side so it is already warm when the knob moves onto it.
-    std::array<bool, kNumCaptures> active{};
-    for (int i = 0; i < kNumCaptures; i++)
-      if (target[i] > 1e-6 || mWeight[i] > 1e-6)
-        for (int j = std::max(0, i - 1); j <= std::min(kNumCaptures - 1, i + 1); j++)
-          active[j] = true;
-    for (int i = 0; i < kNumCaptures; i++)
-    {
-      if (!active[i])
-        continue;
-      NAM_SAMPLE* in = mIn.data();
-      NAM_SAMPLE* out = mOut[i].data();
-      mModels[i]->process(&in, &out, n);
-      // equalise latency to kMaxLatency
-      auto& dl = mDelayLine[i];
-      const int len = static_cast<int>(dl.size());
-      if (len > 1)
-        for (int s = 0; s < n; s++)
-        {
-          dl[mDelayPos[i]] = out[s];
-          mDelayPos[i] = (mDelayPos[i] + 1) % len;
-          out[s] = dl[mDelayPos[i]];
-        }
-    }
-
-    for (int s = 0; s < n; s++)
-    {
-      double y = 0.0;
-      for (int i = 0; i < kNumCaptures; i++)
-      {
-        mWeight[i] += smooth * (target[i] - mWeight[i]);
-        if (active[i])
-          y += mWeight[i] * mOut[i][s];
-      }
-      mOutGain += smooth * (targetOut - mOutGain);
-      mBypassMix += smooth * (targetBypass - mBypassMix);
-      // dry path delayed by the same kMaxLatency as the models, so bypass doesn't shift timing
-      mDryDelay[mDryPos] = MonoIn(inputs, nIn, start + s);
-      mDryPos = (mDryPos + 1) % int(mDryDelay.size());
-      const double dry = mDryDelay[mDryPos];
-      y = (1.0 - mBypassMix) * y * mOutGain + mBypassMix * dry;
-      for (int c = 0; c < nOut; c++)
-        outputs[c][start + s] = y;
-    }
-  }
+  mEngine.Process(inputs, NInChansConnected(), outputs, NOutChansConnected(), nFrames, _Params());
 }
 
 void Decorator::OnIdle()
@@ -424,16 +247,16 @@ void Decorator::OnIdle()
   if (auto* ui = GetUI())
   {
     WDL_String s;
-    if (!mLoadError.empty())
-      s.Set(mLoadError.c_str());
-    else if (!mReady)
+    if (!mEngine.Error().empty())
+      s.Set(mEngine.Error().c_str());
+    else if (!mEngine.Ready())
       s.Set("loading...");
     else
     {
-      std::array<double, kNumCaptures> w;
-      _TargetWeights(GetParam(kSaturation)->Value(), w);
+      std::array<double, decorator::kNumCaptures> w;
+      decorator::TargetWeights(GetParam(kSaturation)->Value(), w);
       int a = -1, b = -1;
-      for (int i = 0; i < kNumCaptures; i++)
+      for (int i = 0; i < decorator::kNumCaptures; i++)
         if (w[i] > 0.001)
         {
           if (a < 0)

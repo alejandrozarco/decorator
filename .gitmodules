@@ -10,3 +10,6 @@
 [submodule "source/NeuralAmpModelerCore"]
 	path = source/NeuralAmpModelerCore
 	url = https://github.com/sdatkinson/NeuralAmpModelerCore.git
+[submodule "source/DPF"]
+	path = source/DPF
+	url = https://github.com/DISTRHO/DPF.git
