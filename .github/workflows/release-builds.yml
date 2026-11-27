@@ -19,8 +19,16 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+      - name: Install GCC 12 (the NAM core needs C++20 std::atomic<shared_ptr>)
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq g++-12 >/dev/null
+      - name: Engine test
+        run: |
+          cd source
+          N=NeuralAmpModelerCore/NAM
+          g++-12 -std=c++20 -O2 -fpermissive -DNAM_ENABLE_A2_FAST -DNDEBUG -Ieigen -INeuralAmpModelerCore -INeuralAmpModelerCore/Dependencies/nlohmann tests/engine_test.cpp $N/*.cpp $N/wavenet/*.cpp AudioDSPTools/dsp/dsp.cpp -o engine_test
+          ./engine_test
       - name: Build VST3, LV2, CLAP (DPF)
-        run: make -C source/linux -j4
+        run: make -C source/linux -j4 CC=gcc-12 CXX=g++-12 LDFLAGS="-static-libstdc++ -static-libgcc"
       - name: Validate with pluginval
         run: |
           set -e
@@ -57,6 +65,13 @@ jobs:
         shell: bash
         run: cd source/iPlug2/Dependencies/IPlug && ./download-iplug-sdks.sh
       - uses: microsoft/setup-msbuild@v2
+      - uses: ilammy/msvc-dev-cmd@v1
+      - name: Engine test (MSVC)
+        shell: cmd
+        run: |
+          cd source
+          cl /nologo /std:c++20 /O2 /EHsc /bigobj /DNAM_ENABLE_A2_FAST /DNDEBUG /Ieigen /INeuralAmpModelerCore /INeuralAmpModelerCore\Dependencies\nlohmann tests\engine_test.cpp NeuralAmpModelerCore\NAM\*.cpp NeuralAmpModelerCore\NAM\wavenet\*.cpp AudioDSPTools\dsp\dsp.cpp /Fe:engine_test.exe
+          engine_test.exe
       - name: Build VST3 and app
         shell: pwsh
         run: |
@@ -69,7 +84,7 @@ jobs:
           Invoke-WebRequest https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Windows.zip -OutFile pv.zip
           Expand-Archive pv.zip -DestinationPath pv
           $vst3 = Get-ChildItem -Recurse -Directory -Filter "Decorator.vst3" source/Decorator/build-win | Select-Object -First 1
-          & pv/pluginval.exe --strictness-level 5 --skip-gui-tests --validate-in-process --timeout-ms 300000 --validate $vst3.FullName
+          & pv/pluginval.exe --verbose --strictness-level 5 --skip-gui-tests --validate-in-process --timeout-ms 300000 --validate $vst3.FullName
           if ($LASTEXITCODE -ne 0) { throw "pluginval failed" }
       - name: Package
         shell: pwsh
