@@ -79,7 +79,7 @@ canvas.wave { width: 100%; height: 48px; display: block; cursor: pointer; margin
   try { manifest = await (await fetch("demos.json")).json(); }
   catch (e) { root.innerHTML = '<p class="loading">Could not load demos.json. Serve this folder over HTTP.</p>'; return; }
 
-  const thumbs = { off: "img/thumb_0.png", sat0900: "img/thumb_1.png", sat1200: "img/thumb_2.png", sat0300: "img/thumb_3.png", sat0500: "img/thumb_4.png" };
+  const thumbs = Object.fromEntries(manifest.settings.map(s => [s.id, `img/thumb_${s.id}.png`]));
   let ctx = null, master = null, hp = null, lp = null;
   const matchBox = document.getElementById("match"), cabBox = document.getElementById("cab");
   const players = [];

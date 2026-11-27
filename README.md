@@ -38,12 +38,14 @@ At a capture position the plugin runs exactly the same model as the matching TON
 
 Or download the MP3s. Volume is at 12:00 in all of them, and the levels are real, not loudness-matched:
 
-| Clip | Clean DI | Sat 9:00 | Sat 12:00 | Sat 3:00 | Sat max |
-|---|---|---|---|---|---|
-| Open chords | [▶](docs/audio/chords_off.mp3) | [▶](docs/audio/chords_sat0900.mp3) | [▶](docs/audio/chords_sat1200.mp3) | [▶](docs/audio/chords_sat0300.mp3) | [▶](docs/audio/chords_sat0500.mp3) |
-| Arpeggios | [▶](docs/audio/arpeggios_off.mp3) | [▶](docs/audio/arpeggios_sat0900.mp3) | [▶](docs/audio/arpeggios_sat1200.mp3) | [▶](docs/audio/arpeggios_sat0300.mp3) | [▶](docs/audio/arpeggios_sat0500.mp3) |
-| Lead line | [▶](docs/audio/lead_off.mp3) | [▶](docs/audio/lead_sat0900.mp3) | [▶](docs/audio/lead_sat1200.mp3) | [▶](docs/audio/lead_sat0300.mp3) | [▶](docs/audio/lead_sat0500.mp3) |
-| Low riff | [▶](docs/audio/riff_off.mp3) | [▶](docs/audio/riff_sat0900.mp3) | [▶](docs/audio/riff_sat1200.mp3) | [▶](docs/audio/riff_sat0300.mp3) | [▶](docs/audio/riff_sat0500.mp3) |
+| Clip | Clean DI | Sat 9:00 | Sat 11:30* | Sat 12:00 | Sat 1:30* | Sat 3:00 | Sat max |
+|---|---|---|---|---|---|---|---|
+| Open chords | [▶](docs/audio/chords_off.mp3) | [▶](docs/audio/chords_sat0900.mp3) | [▶](docs/audio/chords_sat1130.mp3) | [▶](docs/audio/chords_sat1200.mp3) | [▶](docs/audio/chords_sat0130.mp3) | [▶](docs/audio/chords_sat0300.mp3) | [▶](docs/audio/chords_sat0500.mp3) |
+| Arpeggios | [▶](docs/audio/arpeggios_off.mp3) | [▶](docs/audio/arpeggios_sat0900.mp3) | [▶](docs/audio/arpeggios_sat1130.mp3) | [▶](docs/audio/arpeggios_sat1200.mp3) | [▶](docs/audio/arpeggios_sat0130.mp3) | [▶](docs/audio/arpeggios_sat0300.mp3) | [▶](docs/audio/arpeggios_sat0500.mp3) |
+| Lead line | [▶](docs/audio/lead_off.mp3) | [▶](docs/audio/lead_sat0900.mp3) | [▶](docs/audio/lead_sat1130.mp3) | [▶](docs/audio/lead_sat1200.mp3) | [▶](docs/audio/lead_sat0130.mp3) | [▶](docs/audio/lead_sat0300.mp3) | [▶](docs/audio/lead_sat0500.mp3) |
+| Low riff | [▶](docs/audio/riff_off.mp3) | [▶](docs/audio/riff_sat0900.mp3) | [▶](docs/audio/riff_sat1130.mp3) | [▶](docs/audio/riff_sat1200.mp3) | [▶](docs/audio/riff_sat0130.mp3) | [▶](docs/audio/riff_sat0300.mp3) | [▶](docs/audio/riff_sat0500.mp3) |
+
+\* Between capture positions: the plugin crossfades the 11:00/12:00 and 1:00/2:00 captures here.
 
 The demo guitar is the [FreePATS "Electric Guitar FSBS (direct)"](http://freepats.zenvoid.org/ElectricGuitar/clean-electric-guitar.html) sample bank, a raw DI recording of a Fender guitar released under **CC0 1.0**. The phrases are played from that bank at a typical single-coil level of about −30 dBFS RMS, then run through the plugin alone, with no amp or cab. `demo/make_demos.py` rebuilds everything.
 

@@ -27,12 +27,16 @@ def face(sat_h, vol_h, on=True):
 os.makedirs(OUT, exist_ok=True)
 hero = face(14.0, 12.0); hero.save(os.path.join(OUT, "decorator.png"), optimize=True)
 hero.resize((hero.width // 2, hero.height // 2), Image.LANCZOS).save(os.path.join(OUT, "decorator-small.png"), optimize=True)
-# row of the demo settings
-row = [face(h, 12.0, on) for h, on in ((9, False), (9, True), (12, True), (15, True), (17, True))]
-w, h = row[0].width // 2, row[0].height // 2; gap = 24
+# the demo settings: id, Saturation (hours, 7..17), on
+DEMO = [("off", 9, False), ("sat0900", 9, True), ("sat1130", 11.5, True), ("sat1200", 12, True),
+        ("sat0130", 13.5, True), ("sat0300", 15, True), ("sat0500", 17, True)]
+faces = {i: face(h_, 12.0, on) for i, h_, on in DEMO}
+w, h = hero.width // 2, hero.height // 2
+for i, f in faces.items():
+    f.resize((w // 2, h // 2), Image.LANCZOS).save(os.path.join(OUT, f"thumb_{i}.png"), optimize=True)
+row = [faces[i] for i in ("off", "sat0900", "sat1200", "sat0300", "sat0500")]
+gap = 24
 strip = Image.new("RGBA", (len(row) * w + (len(row) - 1) * gap, h), (0, 0, 0, 0))
-for i, r in enumerate(row): strip.alpha_composite(r.resize((w, h), Image.LANCZOS), (i * (w + gap), 0))
+for k, r in enumerate(row): strip.alpha_composite(r.resize((w, h), Image.LANCZOS), (k * (w + gap), 0))
 strip.save(os.path.join(OUT, "settings.png"), optimize=True)
-for i, (h_, on) in enumerate(((9, False), (9, True), (12, True), (15, True), (17, True))):
-    face(h_, 12.0, on).resize((w // 2, h // 2), Image.LANCZOS).save(os.path.join(OUT, f"thumb_{i}.png"), optimize=True)
 print("ok", hero.size, strip.size)
