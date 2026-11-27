@@ -124,6 +124,7 @@ class Tonewheel:
         y[:len(click)] += click
         return y * 0.25
 ORG = Tonewheel("888400000", percussion=True)
+ORG_FULL = Tonewheel("888888888", percussion=False)
 note = GTR.note
 
 def render(events, length, inst=None):
@@ -189,24 +190,35 @@ mel = [(3.0, 72, .5), (3.5, 74, .5), (4.0, 76, 1.5), (7.0, 74, .5), (7.5, 72, .5
 ev += [(t * b, m, 96, d * b) for t, m, d in mel]
 P["rhodes"] = ("Rhodes", render(ev, 8 * 4 * b + 3.0, RHO)); GROUP["rhodes"] = "Rhodes"
 
-# 5b. Organ: big rock chords, power-chord voicings (root, fifth, octave, plus the fifth above) in the
-#     middle register, no low bass. C - Eb - F, straight eighths feel, 116 bpm, ends on a held C.
-b = 60 / 116; ev = []
+# 5b. Organ: big rock chords, power-chord voicings (root, fifth, octave, fifth above) in the middle register.
+#     C - Eb - F with syncopated pushes, a bar of staccato hits, a palm-slide glissando down the white keys,
+#     and the final chord with every drawbar out. 116 bpm.
+b = 60 / 116
 V = {"C": [48, 55, 60, 67, 72], "Eb": [51, 58, 63, 70, 75], "F": [53, 60, 65, 72, 77], "Bb": [46, 53, 58, 65, 70]}
-# (beat, chord, length in beats, velocity): two-bar phrase  C . . Eb . F . . | C . . Eb . Bb F .
-phrase = [(0, "C", 1.4, 118), (1.5, "C", 0.4, 100), (2, "Eb", 1.4, 118), (3.5, "F", 2.4, 122),
-          (6, "C", 0.9, 112), (7, "Eb", 0.9, 112)]
-for rep in range(4):
-    t0 = rep * 8
-    for beat, c, ln, v in phrase:
-        last_bar_turn = rep == 3 and beat >= 6
-        if last_bar_turn: continue
-        for k, m in enumerate(V[c]): ev.append(((t0 + beat) * b + 0.004 * k, m, v, ln * b))
-# turnaround and the big ending
-for beat, c, ln in ((30, "Bb", 0.9), (31, "F", 0.9)):
-    for m in V[c]: ev.append((beat * b, m, 120, ln * b))
-for m in V["C"] + [79]: ev.append((32 * b, m, 124, 6 * b))
-P["organ"] = ("Organ chords", render(ev, 38 * b + 1.5, ORG)); GROUP["organ"] = "Organ"
+def chord(ev, beat, c, ln, v):
+    for k, m in enumerate(V[c]): ev.append((beat * b + 0.004 * k, m, v, ln * b))
+A = [(0, "C", 0.45, 120), (0.75, "C", 0.2, 104), (1.5, "Eb", 0.95, 118), (2.5, "Eb", 0.2, 100), (3, "F", 0.4, 116),
+     (3.5, "F", 1.9, 122), (5.5, "Eb", 0.4, 110), (6, "C", 0.45, 118), (6.75, "C", 0.2, 102), (7.5, "Bb", 0.45, 114)]
+ev = []
+for t0 in (0, 16):                                   # phrase A twice
+    for beat, c, ln, v in A: chord(ev, t0 + beat, c, ln, v)
+for k in range(8):                                   # staccato bar, accents on 1 and 3
+    chord(ev, 8 + 0.5 * k, "C", 0.18, 122 if k % 4 == 0 else (108 if k % 2 == 0 else 96))
+chord(ev, 12, "Eb", 1.4, 120); chord(ev, 13.5, "F", 2.4, 124)
+for k in range(6):                                   # second staccato bar, on F, then the turnaround
+    chord(ev, 24 + 0.5 * k, "F", 0.18, 120 if k % 4 == 0 else 100)
+chord(ev, 27, "Eb", 0.45, 116); chord(ev, 28, "Bb", 0.9, 118); chord(ev, 29, "F", 0.9, 120)
+whites = [m for m in range(84, 59, -1) if m % 12 in (0, 2, 4, 5, 7, 9, 11)]   # C6 down to C4
+g0, g1 = 30.0, 31.85
+gl = []
+for k, m in enumerate(whites):                       # palm slide: accelerating run down the keys
+    tb = g0 + (g1 - g0) * (k / (len(whites) - 1)) ** 0.8
+    gl.append((tb * b, m, 110 - 2 * k, 0.12 * b))
+y = render(ev, 38 * b + 1.5, ORG) + 10 ** (4 / 20) * render(gl, 38 * b + 1.5, ORG)
+fin = []
+for m in V["C"] + [79]: fin.append((32 * b, m, 124, 6 * b))
+y = y + 10 ** (-4.5 / 20) * render(fin, 38 * b + 1.5, ORG_FULL)   # every drawbar out for the last chord
+P["organ"] = ("Organ chords", y); GROUP["organ"] = "Organ"
 
 # 6. Drums: dense funk groove, 16th hats, no crashes (sustained energy rather than a few loud peaks). 100 bpm
 b = 60 / 100; ev = []
