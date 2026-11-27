@@ -28,7 +28,7 @@ The same ten captures are also on TONE3000 as a pack of NAM profiles: **[tone300
 | Volume | output level fixed to roughly the pedal's Volume at 12:45 | the full Volume knob, using the measured curve |
 | Runs in | any NAM host (TONE3000, NAM plugin, ...) | its own AU / VST3 / app |
 
-At a capture position, with Volume at about 12:40, the plugin and the matching TONE3000 profile sound the same: the null is below −90 dB with calibrated input. The pack is the easiest way to use one setting in a NAM rig. The plugin adds the knobs between the steps.
+At a capture position the plugin runs exactly the same model as the matching TONE3000 profile. With Volume at max (and output levels lined up), the two null below −90 dB. With Volume at about 12:40, the plugin's level is within 0.1 dB of the TONE3000 profile's. The pack is the easiest way to use one setting in a NAM rig. The plugin adds the knobs between the steps.
 
 ## Listen
 
