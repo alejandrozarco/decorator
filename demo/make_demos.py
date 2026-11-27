@@ -8,12 +8,11 @@
      music made with it CC0)  https://github.com/sfzinstruments/jlearman.jRhodes3d
    - drums: MuldjordKit by Lars Muldjord, FreePATS SFZ version (CC BY 4.0)
      http://freepats.zenvoid.org/Percussion/acoustic-drum-kit.html
-   - organ: FreePATS "Rock organ emulation", a tonewheel organ sampled from setBfree (CC0 1.0)
-     http://freepats.zenvoid.org/Organ/electric-organ.html
+   - organ: a tonewheel organ synthesized here (additive drawbars, percussion, key click, no rotary speaker)
 2. Runs each phrase through the Decorator VST3 at a few Saturation settings.
 3. Writes MP3s plus docs/demos.json (file list and loudness for the page's level-match toggle).
 
-usage: make_demos.py --guitar DIR --rhodes DIR --drums DIR --organ DIR [--vst3 PATH] [--out docs/audio]
+usage: make_demos.py --guitar DIR --rhodes DIR --drums DIR [--vst3 PATH] [--out docs/audio]
        (each DIR is the unpacked sample set, containing its .sfz)
 needs: numpy scipy soundfile pedalboard, ffmpeg on PATH
 """
@@ -26,7 +25,6 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--guitar", required=True)
 ap.add_argument("--rhodes", required=True, help="jRhodes3d checkout")
 ap.add_argument("--drums", required=True, help="MuldjordKit SFZ+FLAC folder")
-ap.add_argument("--organ", required=True, help="FreePATS RockOrganEmulation SFZ folder")
 ap.add_argument("--vst3", default=os.path.expanduser("~/Library/Audio/Plug-Ins/VST3/Decorator.vst3"))
 ap.add_argument("--out", default=os.path.join(os.path.dirname(__file__), "..", "docs", "audio"))
 a = ap.parse_args()
@@ -99,7 +97,33 @@ def find_sfz(d, prefer=None):
 GTR = SFZ(find_sfz(a.guitar))
 RHO = SFZ(find_sfz(a.rhodes, "jRhodes3d-mono-no-xfade.sfz"))
 DRM = SFZ(find_sfz(a.drums))
-ORG = SFZ(find_sfz(a.organ))
+class Tonewheel:
+    """Additive tonewheel organ, no rotary speaker: nine drawbars (16' 5 1/3' 8' 4' 2 2/3' 2' 1 3/5' 1 1/3' 1'),
+    3rd-harmonic percussion, key click, foldback of the top wheels, slightly impure wheel waveforms."""
+    RATIOS = [0.5, 1.5, 1, 2, 3, 4, 5, 6, 8]
+    def __init__(self, drawbars="888400000", percussion=True):
+        self.amp = [0.0 if c == "0" else 10 ** (-3 * (8 - int(c)) / 20) for c in drawbars]
+        self.perc = percussion
+    def note(self, midi, vel, dur=None, ring=None, gain=None):
+        dur = 1.0 if dur is None else dur
+        n = int((dur + 0.02) * SR); t = np.arange(n) / SR
+        f0 = 440.0 * 2 ** ((midi - 69) / 12); y = np.zeros(n)
+        for r, a in zip(self.RATIOS, self.amp):
+            if a == 0: continue
+            f = f0 * r
+            while f > 5900: f /= 2                       # the top tonewheels fold back an octave
+            ph = rng.random() * 2 * np.pi
+            w = np.sin(2 * np.pi * f * t + ph)
+            y += a * (w + 0.03 * np.sin(2 * (2 * np.pi * f * t + ph)))   # wheels aren't perfect sines
+        if self.perc:                                    # 3rd-harmonic percussion, fast decay
+            y += 0.7 * np.sin(2 * np.pi * f0 * 3 * t) * np.exp(-t / 0.18)
+        att, rel = int(0.004 * SR), int(0.012 * SR)
+        env = np.ones(n); env[:att] = np.linspace(0, 1, att); env[n - rel:] = np.linspace(1, 0, rel)
+        y *= env
+        click = rng.standard_normal(int(0.003 * SR)) * np.hanning(int(0.003 * SR)) * 0.08   # key contact click
+        y[:len(click)] += click
+        return y * 0.25
+ORG = Tonewheel("888400000", percussion=True)
 note = GTR.note
 
 def render(events, length, inst=None):
