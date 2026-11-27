@@ -170,6 +170,31 @@
    }
   },
   {
+   "id": "organ",
+   "title": "Organ groove",
+   "group": "Organ",
+   "volume": "12:00",
+   "seconds": 18.82,
+   "files": {
+    "off": "audio/organ_off.mp3",
+    "sat0900": "audio/organ_sat0900.mp3",
+    "sat1030": "audio/organ_sat1030.mp3",
+    "sat1200": "audio/organ_sat1200.mp3",
+    "sat0130": "audio/organ_sat0130.mp3",
+    "sat0300": "audio/organ_sat0300.mp3",
+    "sat0500": "audio/organ_sat0500.mp3"
+   },
+   "rms_db": {
+    "off": -26.0,
+    "sat0900": -25.36,
+    "sat1030": -26.02,
+    "sat1200": -26.66,
+    "sat0130": -24.92,
+    "sat0300": -23.88,
+    "sat0500": -23.45
+   }
+  },
+  {
    "id": "drums",
    "title": "Drum kit",
    "group": "Drums",
@@ -186,12 +211,12 @@
    },
    "rms_db": {
     "off": -24.0,
-    "sat0900": -20.46,
-    "sat1030": -23.23,
-    "sat1200": -25.51,
-    "sat0130": -24.44,
-    "sat0300": -24.86,
-    "sat0500": -24.8
+    "sat0900": -20.44,
+    "sat1030": -23.25,
+    "sat1200": -25.61,
+    "sat0130": -24.6,
+    "sat0300": -25.11,
+    "sat0500": -25.1
    }
   }
  ]

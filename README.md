@@ -62,11 +62,12 @@ Or download the MP3s. Volume is at 12:00, except 2:30 for the drums, and the lev
 | Guitar: Lead line | [▶](docs/audio/lead_off.mp3) | [▶](docs/audio/lead_sat0900.mp3) | [▶](docs/audio/lead_sat1030.mp3) | [▶](docs/audio/lead_sat1200.mp3) | [▶](docs/audio/lead_sat0130.mp3) | [▶](docs/audio/lead_sat0300.mp3) | [▶](docs/audio/lead_sat0500.mp3) |
 | Guitar: Low riff | [▶](docs/audio/riff_off.mp3) | [▶](docs/audio/riff_sat0900.mp3) | [▶](docs/audio/riff_sat1030.mp3) | [▶](docs/audio/riff_sat1200.mp3) | [▶](docs/audio/riff_sat0130.mp3) | [▶](docs/audio/riff_sat0300.mp3) | [▶](docs/audio/riff_sat0500.mp3) |
 | Rhodes: Rhodes | [▶](docs/audio/rhodes_off.mp3) | [▶](docs/audio/rhodes_sat0900.mp3) | [▶](docs/audio/rhodes_sat1030.mp3) | [▶](docs/audio/rhodes_sat1200.mp3) | [▶](docs/audio/rhodes_sat0130.mp3) | [▶](docs/audio/rhodes_sat0300.mp3) | [▶](docs/audio/rhodes_sat0500.mp3) |
+| Organ: Organ groove | [▶](docs/audio/organ_off.mp3) | [▶](docs/audio/organ_sat0900.mp3) | [▶](docs/audio/organ_sat1030.mp3) | [▶](docs/audio/organ_sat1200.mp3) | [▶](docs/audio/organ_sat0130.mp3) | [▶](docs/audio/organ_sat0300.mp3) | [▶](docs/audio/organ_sat0500.mp3) |
 | Drums: Drum kit | [▶](docs/audio/drums_off.mp3) | [▶](docs/audio/drums_sat0900.mp3) | [▶](docs/audio/drums_sat1030.mp3) | [▶](docs/audio/drums_sat1200.mp3) | [▶](docs/audio/drums_sat0130.mp3) | [▶](docs/audio/drums_sat0300.mp3) | [▶](docs/audio/drums_sat0500.mp3) |
 
 \* Between capture positions: the plugin crossfades the 10:00/11:00 and 1:00/2:00 captures here.
 
-Demo sounds: guitar from the [FreePATS "Electric Guitar FSBS (direct)"](http://freepats.zenvoid.org/ElectricGuitar/clean-electric-guitar.html) bank, a raw DI recording of a Fender guitar (**CC0**). Rhodes from [jRhodes3d](https://github.com/sfzinstruments/jlearman.jRhodes3d) by Jeff Learman, a 1977 Rhodes Mark I Stage 73 (samples CC BY 4.0, music made with them CC0). Drums from [MuldjordKit](http://freepats.zenvoid.org/Percussion/acoustic-drum-kit.html) by Lars Muldjord (**CC BY 4.0**). The phrases are played dry at realistic levels (guitar about −30 dBFS RMS, Rhodes −26, drums peaking at −1 dBFS), then run through the plugin alone, with no amp or cab. `demo/make_demos.py` rebuilds everything.
+Demo sounds: guitar from the [FreePATS "Electric Guitar FSBS (direct)"](http://freepats.zenvoid.org/ElectricGuitar/clean-electric-guitar.html) bank, a raw DI recording of a Fender guitar (**CC0**). Rhodes from [jRhodes3d](https://github.com/sfzinstruments/jlearman.jRhodes3d) by Jeff Learman, a 1977 Rhodes Mark I Stage 73 (samples CC BY 4.0, music made with them CC0). Drums from [MuldjordKit](http://freepats.zenvoid.org/Percussion/acoustic-drum-kit.html) by Lars Muldjord (**CC BY 4.0**). Organ from the FreePATS [percussive organ](http://freepats.zenvoid.org/Organ/electric-organ.html) bank, a tonewheel organ sampled from the setBfree emulator (**CC0**). The phrases are played dry at realistic levels (guitar about −30 dBFS RMS, Rhodes and organ −26, drums peaking at −1 dBFS), then run through the plugin alone, with no amp or cab. `demo/make_demos.py` rebuilds everything.
 
 ## How it works
 
@@ -151,6 +152,6 @@ It's built on:
 - [NeuralAmpModelerPlugin](https://github.com/sdatkinson/NeuralAmpModelerPlugin), [NeuralAmpModelerCore](https://github.com/sdatkinson/NeuralAmpModelerCore) and [AudioDSPTools](https://github.com/sdatkinson/AudioDSPTools), © Steven Atkinson, MIT. The original notice is in [LICENSE-MIT-NeuralAmpModeler.txt](source/LICENSE-MIT-NeuralAmpModeler.txt).
 - [iPlug2](https://github.com/iPlug2/iPlug2) (zlib-style licence), [Eigen](https://eigen.tuxfamily.org) (MPL 2.0) and the VST3 SDK (MIT).
 - The fonts Montserrat, Archivo Black and Michroma (SIL OFL 1.1) and Roboto (Apache 2.0).
-- Demo audio sources: FreePATS Electric Guitar FSBS (direct), CC0 1.0. jRhodes3d by Jeff Learman (samples CC BY 4.0). MuldjordKit by Lars Muldjord, FreePATS version (CC BY 4.0).
+- Demo audio sources: FreePATS Electric Guitar FSBS (direct), CC0 1.0. jRhodes3d by Jeff Learman (samples CC BY 4.0). MuldjordKit by Lars Muldjord, FreePATS version (CC BY 4.0). FreePATS Percussive organ emulation (CC0 1.0).
 
 The pedal name and maker are left out on purpose. This project isn't affiliated with or endorsed by any pedal manufacturer.

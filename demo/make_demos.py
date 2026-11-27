@@ -8,10 +8,12 @@
      music made with it CC0)  https://github.com/sfzinstruments/jlearman.jRhodes3d
    - drums: MuldjordKit by Lars Muldjord, FreePATS SFZ version (CC BY 4.0)
      http://freepats.zenvoid.org/Percussion/acoustic-drum-kit.html
+   - organ: FreePATS "Percussive organ emulation", a tonewheel organ sampled from setBfree (CC0 1.0)
+     http://freepats.zenvoid.org/Organ/electric-organ.html
 2. Runs each phrase through the Decorator VST3 at a few Saturation settings.
 3. Writes MP3s plus docs/demos.json (file list and loudness for the page's level-match toggle).
 
-usage: make_demos.py --guitar DIR --rhodes DIR --drums DIR [--vst3 PATH] [--out docs/audio]
+usage: make_demos.py --guitar DIR --rhodes DIR --drums DIR --organ DIR [--vst3 PATH] [--out docs/audio]
        (each DIR is the unpacked sample set, containing its .sfz)
 needs: numpy scipy soundfile pedalboard, ffmpeg on PATH
 """
@@ -24,6 +26,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--guitar", required=True)
 ap.add_argument("--rhodes", required=True, help="jRhodes3d checkout")
 ap.add_argument("--drums", required=True, help="MuldjordKit SFZ+FLAC folder")
+ap.add_argument("--organ", required=True, help="FreePATS PercussiveOrganEmulation SFZ folder")
 ap.add_argument("--vst3", default=os.path.expanduser("~/Library/Audio/Plug-Ins/VST3/Decorator.vst3"))
 ap.add_argument("--out", default=os.path.join(os.path.dirname(__file__), "..", "docs", "audio"))
 a = ap.parse_args()
@@ -56,7 +59,11 @@ class SFZ:
                                      key=midi_of(r.get("pitch_keycenter", r.get("lokey", "60"))),
                                      lovel=int(r.get("lovel", 0)), hivel=int(r.get("hivel", 127)),
                                      lorand=float(r.get("lorand", 0)), hirand=float(r.get("hirand", 1)),
-                                     release=float(r.get("ampeg_release", 0.08)), sample=self.prefix + r["sample"]))
+                                     release=float(r.get("ampeg_release", 0.08)), sample=self.prefix + r["sample"],
+                                     loop=(int(r["loop_start"]), int(r["loop_end"])) if r.get("loop_mode") == "loop_continuous" and "loop_start" in r else None,
+                                     sr=None))
+    def rate(self, p):
+        return sf.info(os.path.join(self.dir, p.replace("\\", "/"))).samplerate
     def load(self, p):
         if p not in self.cache:
             x, sr = sf.read(os.path.join(self.dir, p.replace("\\", "/")), always_2d=True)
@@ -71,6 +78,12 @@ class SFZ:
         cand = [g for g in cand if g["lorand"] <= rr < g["hirand"]] or cand
         g = cand[0]
         x = self.load(g["sample"])
+        if g["loop"] and dur is not None:            # sustain by repeating the loop (loop points are at the file's rate)
+            ls, le = g["loop"]; ratio = SR / self.rate(g["sample"]); ls, le = int(ls * ratio), int(le * ratio)
+            need = int((dur + 1.0) * SR * 2 ** ((midi - g["key"]) / 12))
+            if need > len(x) and le > ls:
+                reps = (need - le) // (le - ls) + 2
+                x = np.concatenate([x[:le]] + [x[ls:le]] * reps)
         shift = midi - g["key"]
         if shift: x = resample(x, int(round(len(x) / 2 ** (shift / 12))))
         if dur is not None:
@@ -86,6 +99,7 @@ def find_sfz(d, prefer=None):
 GTR = SFZ(find_sfz(a.guitar))
 RHO = SFZ(find_sfz(a.rhodes, "jRhodes3d-mono-no-xfade.sfz"))
 DRM = SFZ(find_sfz(a.drums))
+ORG = SFZ(find_sfz(a.organ))
 note = GTR.note
 
 def render(events, length, inst=None):
@@ -151,6 +165,26 @@ mel = [(3.0, 72, .5), (3.5, 74, .5), (4.0, 76, 1.5), (7.0, 74, .5), (7.5, 72, .5
 ev += [(t * b, m, 96, d * b) for t, m, d in mel]
 P["rhodes"] = ("Rhodes", render(ev, 8 * 4 * b + 3.0, RHO)); GROUP["rhodes"] = "Rhodes"
 
+# 5b. Organ: original minor-blues groove in C minor, soul-organ style: staccato off-beat stabs over a
+#     walking left hand, a blues lick on top, a held chord to finish. Slight swing. 132 bpm
+b = 60 / 132; sw = 0.58                       # swing: offbeat eighths land at 58 % of the beat
+def at(beat): return (int(beat) + (sw if beat % 1 >= 0.5 else 0.0)) * b
+ev = []
+chords = {"Cm7": [55, 58, 60, 63], "Fm7": [56, 60, 63, 65], "G7": [55, 59, 62, 65], "Ab7": [56, 60, 63, 66]}
+walk = {"Cm7": [36, 39, 43, 46], "Fm7": [41, 44, 48, 51], "G7": [43, 47, 50, 53], "Ab7": [44, 48, 51, 54]}
+form = ["Cm7", "Cm7", "Fm7", "Cm7", "Ab7", "G7", "Cm7", "G7"]
+for bar, c in enumerate(form):
+    t0 = bar * 4
+    for k, m in enumerate(walk[c]): ev.append((at(t0 + k), m, 100, 0.8 * b))           # walking quarter notes
+    for beat in (0.5, 1.5, 3.5) if bar % 2 == 0 else (0.5, 2.5, 3.0):                   # short stabs
+        for m in chords[c]: ev.append((at(t0 + beat), m, 104, 0.22 * b))
+lick = [(16.5, 72, .5), (17, 75, .5), (17.5, 77, .5), (18, 78, .25), (18.25, 77, .25), (18.5, 75, .5), (19, 72, 1),
+        (20.5, 75, .5), (21, 72, .5), (21.5, 70, .5), (22, 72, 1.5), (24, 79, .5), (24.5, 77, .5), (25, 75, .5), (25.5, 74, .5),
+        (26, 72, .5), (26.5, 70, .5), (27, 67, 1)]
+ev += [(at(t), m, 110, d * b * 0.95) for t, m, d in lick]
+for m in [48, 55, 58, 60, 63, 67]: ev.append((at(32), m, 110, 5 * b))                    # final Cm9-ish swell
+P["organ"] = ("Organ groove", render(ev, 37 * b + 2.0, ORG)); GROUP["organ"] = "Organ"
+
 # 6. Drums: dense funk groove, 16th hats, no crashes (sustained energy rather than a few loud peaks). 100 bpm
 b = 60 / 100; ev = []
 K, S, HC, HO, RIDE, T1, T2, T4 = 48, 50, 52, 53, 54, 61, 62, 64
@@ -176,7 +210,7 @@ P["drums"] = ("Drum kit", y); GROUP["drums"] = "Drums"
 
 # ---------- levels: realistic dry signals, 0 dBFS = 12.5 dBu at the interface ----------
 # guitar DI about -30 dBFS active RMS; Rhodes (hotter, line-ish pickup) -26; drum submix -24 (peaky)
-TARGET = {"Guitar": -30.0, "Rhodes": -26.0, "Drums": -24.0}
+TARGET = {"Guitar": -30.0, "Rhodes": -26.0, "Organ": -26.0, "Drums": -24.0}
 def active_rms(x, n=2400):
     f = np.sqrt(np.mean(x[: len(x) // n * n].reshape(-1, n) ** 2, axis=1) + 1e-20)
     return 20 * np.log10(np.sqrt(np.mean(f[f > f.max() * 10 ** (-30 / 20)] ** 2)))
@@ -198,7 +232,7 @@ manifest = {"settings": [{"id": s[0], "label": s[1], "saturation": s[2], "volume
 def mp3(x, path):
     tmp = path + ".wav"; sf.write(tmp, x.astype(np.float32), SR, subtype="FLOAT")
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", tmp, "-c:a", "libmp3lame", "-b:a", "192k", path], check=True); os.remove(tmp)
-VOLUME = {"Guitar": "12:00", "Rhodes": "12:00", "Drums": "2:30"}   # drums hit the pedal hard; turn Volume up as you would on the pedal
+VOLUME = {"Guitar": "12:00", "Rhodes": "12:00", "Organ": "12:00", "Drums": "2:30"}   # drums hit the pedal hard; turn Volume up as you would on the pedal
 for k, (name, x) in P.items():
     clip = {"id": k, "title": name, "group": GROUP[k], "volume": VOLUME[GROUP[k]], "seconds": round(len(x) / SR, 2), "files": {}, "rms_db": {}}
     for sid, label, sat, vol in SETTINGS:
