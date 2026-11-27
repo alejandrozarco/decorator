@@ -21,6 +21,13 @@ jobs:
           submodules: recursive
       - name: Build VST3, LV2, CLAP (DPF)
         run: make -C source/linux -j4
+      - name: Validate with pluginval
+        run: |
+          set -e
+          curl -sL -o pv.zip https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Linux.zip
+          unzip -q pv.zip
+          sudo apt-get install -y -qq xvfb >/dev/null
+          xvfb-run -a ./pluginval --strictness-level 5 --skip-gui-tests --validate-in-process --timeout-ms 300000 --validate source/bin/Decorator.vst3
       - name: Package
         run: |
           set -e
@@ -55,6 +62,15 @@ jobs:
         run: |
           cd source/Decorator
           msbuild Decorator.sln /m /p:Configuration=Release /p:Platform=x64 /t:Decorator-vst3 /t:Decorator-app
+      - name: Validate with pluginval
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          Invoke-WebRequest https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Windows.zip -OutFile pv.zip
+          Expand-Archive pv.zip -DestinationPath pv
+          $vst3 = Get-ChildItem -Recurse -Directory -Filter "Decorator.vst3" source/Decorator/build-win | Select-Object -First 1
+          & pv/pluginval.exe --strictness-level 5 --skip-gui-tests --validate-in-process --timeout-ms 300000 --validate $vst3.FullName
+          if ($LASTEXITCODE -ne 0) { throw "pluginval failed" }
       - name: Package
         shell: pwsh
         run: |

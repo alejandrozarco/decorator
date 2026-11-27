@@ -16,5 +16,10 @@ include ../DPF/Makefile.plugins.mk
 
 BUILD_CXX_FLAGS += -std=gnu++20 -I../eigen -I../NeuralAmpModelerCore -I../NeuralAmpModelerCore/Dependencies/nlohmann -DDECORATOR_NO_IPLUG -DNAM_ENABLE_A2_FAST -DNDEBUG -O3 -Wno-unused-parameter
 
+# GCC rejects a member alias in AudioDSPTools' ResamplingContainer.h that clang accepts
+ifneq ($(MACOS),true)
+BUILD_CXX_FLAGS += -fpermissive
+endif
+
 TARGETS += vst3 lv2_dsp clap
 all: $(TARGETS)
