@@ -1,0 +1,112 @@
+{
+ "settings": [
+  {
+   "id": "off",
+   "label": "Off (clean DI)",
+   "saturation": null,
+   "volume": null
+  },
+  {
+   "id": "sat0900",
+   "label": "Saturation 9:00",
+   "saturation": "9:00",
+   "volume": "12:00"
+  },
+  {
+   "id": "sat1200",
+   "label": "Saturation 12:00",
+   "saturation": "12:00",
+   "volume": "12:00"
+  },
+  {
+   "id": "sat0300",
+   "label": "Saturation 3:00",
+   "saturation": "3:00",
+   "volume": "12:00"
+  },
+  {
+   "id": "sat0500",
+   "label": "Saturation max",
+   "saturation": "5:00",
+   "volume": "12:00"
+  }
+ ],
+ "clips": [
+  {
+   "id": "chords",
+   "title": "Open chords",
+   "seconds": 24.36,
+   "files": {
+    "off": "audio/chords_off.mp3",
+    "sat0900": "audio/chords_sat0900.mp3",
+    "sat1200": "audio/chords_sat1200.mp3",
+    "sat0300": "audio/chords_sat0300.mp3",
+    "sat0500": "audio/chords_sat0500.mp3"
+   },
+   "rms_db": {
+    "off": -30.0,
+    "sat0900": -28.77,
+    "sat1200": -28.84,
+    "sat0300": -26.26,
+    "sat0500": -25.79
+   }
+  },
+  {
+   "id": "arpeggios",
+   "title": "Arpeggios",
+   "seconds": 22.0,
+   "files": {
+    "off": "audio/arpeggios_off.mp3",
+    "sat0900": "audio/arpeggios_sat0900.mp3",
+    "sat1200": "audio/arpeggios_sat1200.mp3",
+    "sat0300": "audio/arpeggios_sat0300.mp3",
+    "sat0500": "audio/arpeggios_sat0500.mp3"
+   },
+   "rms_db": {
+    "off": -30.0,
+    "sat0900": -28.64,
+    "sat1200": -28.49,
+    "sat0300": -25.43,
+    "sat0500": -24.94
+   }
+  },
+  {
+   "id": "lead",
+   "title": "Lead line",
+   "seconds": 12.8,
+   "files": {
+    "off": "audio/lead_off.mp3",
+    "sat0900": "audio/lead_sat0900.mp3",
+    "sat1200": "audio/lead_sat1200.mp3",
+    "sat0300": "audio/lead_sat0300.mp3",
+    "sat0500": "audio/lead_sat0500.mp3"
+   },
+   "rms_db": {
+    "off": -30.0,
+    "sat0900": -28.72,
+    "sat1200": -31.45,
+    "sat0300": -30.41,
+    "sat0500": -29.9
+   }
+  },
+  {
+   "id": "riff",
+   "title": "Low riff",
+   "seconds": 11.71,
+   "files": {
+    "off": "audio/riff_off.mp3",
+    "sat0900": "audio/riff_sat0900.mp3",
+    "sat1200": "audio/riff_sat1200.mp3",
+    "sat0300": "audio/riff_sat0300.mp3",
+    "sat0500": "audio/riff_sat0500.mp3"
+   },
+   "rms_db": {
+    "off": -30.0,
+    "sat0900": -29.07,
+    "sat1200": -29.79,
+    "sat0300": -27.17,
+    "sat0500": -26.77
+   }
+  }
+ ]
+}

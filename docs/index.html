@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decorator Demos</title>
+<meta name="description" content="Listen to the Decorator tape-saturation plugin: toggle it on and off over clean guitar.">
+<style>
+:root {
+  --bg: #f4f2ee; --card: #ffffff; --ink: #1d1b19; --muted: #6b665f; --line: #e2ddd5;
+  --accent: #c8321e; --accent-ink: #ffffff; --chip: #efebe4; --wave: #c9c2b7; --wave-on: #1d1b19;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #151412; --card: #1f1d1a; --ink: #f1eee8; --muted: #a39d93; --line: #34302b;
+    --accent: #e2462f; --accent-ink: #ffffff; --chip: #2a2723; --wave: #4a453e; --wave-on: #f1eee8;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #151412; --card: #1f1d1a; --ink: #f1eee8; --muted: #a39d93; --line: #34302b;
+  --accent: #e2462f; --accent-ink: #ffffff; --chip: #2a2723; --wave: #4a453e; --wave-on: #f1eee8;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+main { max-width: 980px; margin: 0 auto; padding: 32px 16px 64px; }
+header { display: flex; gap: 28px; align-items: center; margin-bottom: 28px; }
+header img { width: 120px; height: auto; flex: none; filter: drop-shadow(0 6px 14px rgba(0,0,0,.25)); }
+h1 { margin: 0 0 4px; font-size: 32px; letter-spacing: .02em; }
+.sub { margin: 0; color: var(--muted); max-width: 60ch; }
+.controls { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; margin: 0 0 18px; color: var(--muted); font-size: 14px; }
+.controls label { display: inline-flex; gap: 8px; align-items: center; cursor: pointer; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px; margin-bottom: 16px; display: grid; grid-template-columns: 76px 1fr; gap: 18px; align-items: center; }
+.pedal { width: 76px; height: auto; transition: opacity .15s; }
+.top { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.play { width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--ink); color: var(--bg); cursor: pointer; flex: none; display: grid; place-items: center; }
+.play svg { width: 16px; height: 16px; fill: currentColor; }
+.title { font-weight: 650; }
+.time { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; font-size: 14px; }
+canvas.wave { width: 100%; height: 48px; display: block; cursor: pointer; margin-bottom: 12px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1px solid var(--line); background: var(--chip); color: var(--ink); border-radius: 999px; padding: 6px 12px; font-size: 14px; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.note { color: var(--muted); font-size: 14px; margin-top: 28px; }
+.note code { background: var(--chip); padding: 1px 5px; border-radius: 4px; }
+.loading { color: var(--muted); }
+@media (max-width: 560px) {
+  header { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .card { grid-template-columns: 1fr; }
+  .pedal { display: none; }
+}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <img src="img/decorator-small.png" alt="The Decorator plugin: a brushed-steel pedal with Saturation and Volume knobs and a bypass footswitch">
+    <div>
+      <h1>Decorator</h1>
+      <p class="sub">Tape saturation built from neural captures of a real stompbox. Press play, then switch between the clean DI and the plugin while the clip keeps playing.</p>
+    </div>
+  </header>
+
+  <div class="controls">
+    <label><input type="checkbox" id="match"> Match loudness</label>
+    <label><input type="checkbox" id="cab"> Simple speaker filter</label>
+    <span>Volume knob at 12:00 for every setting.</span>
+  </div>
+
+  <div id="clips"><p class="loading">Loading demos…</p></div>
+
+  <p class="note">The clean guitar is the FreePATS “Electric Guitar FSBS (direct)” sample bank, an unprocessed DI recording released under CC0. Every clip is rendered through the plugin itself, with nothing else added. The speaker filter is a basic browser high-pass and low-pass, not an amp or cab model. To open this page locally, run <code>python3 -m http.server</code> in <code>docs/</code>.</p>
+</main>
+<script>
+(async function () {
+  const root = document.getElementById("clips");
+  let manifest;
+  try { manifest = await (await fetch("demos.json")).json(); }
+  catch (e) { root.innerHTML = '<p class="loading">Could not load demos.json. Serve this folder over HTTP.</p>'; return; }
+
+  const thumbs = { off: "img/thumb_0.png", sat0900: "img/thumb_1.png", sat1200: "img/thumb_2.png", sat0300: "img/thumb_3.png", sat0500: "img/thumb_4.png" };
+  let ctx = null, master = null, hp = null, lp = null;
+  const matchBox = document.getElementById("match"), cabBox = document.getElementById("cab");
+  const players = [];
+
+  function audio() {
+    if (ctx) return ctx;
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+    master = ctx.createGain(); hp = ctx.createBiquadFilter(); lp = ctx.createBiquadFilter();
+    hp.type = "highpass"; hp.frequency.value = 90; lp.type = "lowpass"; lp.frequency.value = 4500; lp.Q.value = 0.9;
+    routeCab(); master.connect(ctx.destination);
+    return ctx;
+  }
+  function routeCab() {
+    if (!ctx) return;
+    players.forEach(p => { if (p.bus) { p.bus.disconnect(); p.bus.connect(cabBox.checked ? hp : master); } });
+    hp.disconnect(); lp.disconnect();
+    if (cabBox.checked) { hp.connect(lp); lp.connect(master); }
+  }
+  cabBox.addEventListener("change", routeCab);
+  matchBox.addEventListener("change", () => players.forEach(p => p.applyGains(true)));
+
+  const ICON_PLAY = '<svg viewBox="0 0 16 16"><path d="M4 2.5v11l9-5.5z"/></svg>';
+  const ICON_PAUSE = '<svg viewBox="0 0 16 16"><path d="M3.5 2.5h3v11h-3zM9.5 2.5h3v11h-3z"/></svg>';
+  const fmt = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+
+  root.innerHTML = "";
+  for (const clip of manifest.clips) {
+    const el = document.createElement("section");
+    el.className = "card";
+    el.innerHTML = `<img class="pedal" alt="" src="${thumbs.off}">
+      <div><div class="top"><button class="play" aria-label="Play ${clip.title}">${ICON_PLAY}</button>
+      <span class="title">${clip.title}</span><span class="time">0:00 / ${fmt(clip.seconds)}</span></div>
+      <canvas class="wave" aria-label="Waveform, click to seek"></canvas>
+      <div class="chips" role="group" aria-label="Plugin setting"></div></div>`;
+    root.appendChild(el);
+    const chips = el.querySelector(".chips"), btn = el.querySelector(".play"), wave = el.querySelector(".wave");
+    const pedal = el.querySelector(".pedal"), time = el.querySelector(".time");
+    const p = { clip, buffers: {}, gains: {}, sources: [], playing: false, offset: 0, started: 0, current: "sat1200", bus: null, peaks: null };
+    players.push(p);
+    for (const s of manifest.settings) {
+      const c = document.createElement("button");
+      c.className = "chip"; c.textContent = s.label; c.dataset.id = s.id;
+      c.setAttribute("aria-pressed", s.id === p.current ? "true" : "false");
+      c.addEventListener("click", () => select(s.id));
+      chips.appendChild(c);
+    }
+    pedal.src = thumbs[p.current];
+
+    let loading = null;
+    async function load() {
+      if (loading) return loading;
+      audio();
+      loading = Promise.all(manifest.settings.map(async s => {
+        const ab = await (await fetch(clip.files[s.id])).arrayBuffer();
+        p.buffers[s.id] = await new Promise((res, rej) => ctx.decodeAudioData(ab, res, rej));
+      })).then(() => { p.peaks = peaks(p.buffers.off); draw(); });
+      return loading;
+    }
+    function peaks(buf) {
+      const d = buf.getChannelData(0), n = 220, step = Math.floor(d.length / n), out = [];
+      for (let i = 0; i < n; i++) { let m = 0; for (let j = i * step; j < (i + 1) * step; j += 8) m = Math.max(m, Math.abs(d[j])); out.push(m); }
+      const mx = Math.max(...out) || 1; return out.map(v => v / mx);
+    }
+    function pos() { return p.playing ? Math.min(clip.seconds, ctx.currentTime - p.started) : p.offset; }
+    function draw() {
+      const dpr = window.devicePixelRatio || 1, w = wave.clientWidth, h = wave.clientHeight;
+      wave.width = w * dpr; wave.height = h * dpr;
+      const g = wave.getContext("2d"); g.scale(dpr, dpr); g.clearRect(0, 0, w, h);
+      const cs = getComputedStyle(document.documentElement);
+      const pk = p.peaks || new Array(220).fill(0.08), bw = w / pk.length, played = pos() / clip.seconds * w;
+      pk.forEach((v, i) => { g.fillStyle = (i * bw < played) ? cs.getPropertyValue("--wave-on") : cs.getPropertyValue("--wave");
+        const bh = Math.max(2, v * (h - 4)); g.fillRect(i * bw + 0.5, (h - bh) / 2, Math.max(1, bw - 1.5), bh); });
+      time.textContent = `${fmt(pos())} / ${fmt(clip.seconds)}`;
+    }
+    p.draw = draw;
+    p.applyGains = function (smooth) {
+      if (!ctx) return;
+      const ref = clip.rms_db.off;
+      for (const s of manifest.settings) {
+        const g = p.gains[s.id]; if (!g) continue;
+        const lvl = s.id === p.current ? (matchBox.checked ? Math.pow(10, (ref - clip.rms_db[s.id]) / 20) : 1) : 0;
+        g.gain.cancelScheduledValues(ctx.currentTime);
+        if (smooth) g.gain.setTargetAtTime(lvl, ctx.currentTime, 0.012); else g.gain.value = lvl;
+      }
+    };
+    function start(at) {
+      p.bus = ctx.createGain(); p.bus.connect(cabBox.checked ? hp : master);
+      p.sources = manifest.settings.map(s => {
+        const src = ctx.createBufferSource(); src.buffer = p.buffers[s.id];
+        const g = ctx.createGain(); src.connect(g); g.connect(p.bus); p.gains[s.id] = g; return src;
+      });
+      p.applyGains(false);
+      const t = ctx.currentTime + 0.05;
+      p.sources.forEach(src => src.start(t, at));
+      p.started = t - at; p.playing = true; btn.innerHTML = ICON_PAUSE;
+      p.sources[0].onended = () => { if (p.playing && pos() >= clip.seconds - 0.1) { stop(); p.offset = 0; draw(); } };
+      tick();
+    }
+    function stop() {
+      if (!p.playing) return;
+      p.offset = pos(); p.playing = false;
+      p.sources.forEach(s => { s.onended = null; try { s.stop(); } catch (e) {} });
+      if (p.bus) p.bus.disconnect(); p.bus = null; btn.innerHTML = ICON_PLAY;
+    }
+    p.stop = stop;
+    function tick() { if (!p.playing) return; draw(); requestAnimationFrame(tick); }
+    function select(id) {
+      p.current = id; pedal.src = thumbs[id];
+      chips.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c.dataset.id === id ? "true" : "false"));
+      p.applyGains(true);
+    }
+    btn.addEventListener("click", async () => {
+      audio(); if (ctx.state === "suspended") await ctx.resume();
+      if (p.playing) { stop(); return; }
+      btn.disabled = true; await load(); btn.disabled = false;
+      players.forEach(o => o !== p && o.stop && o.stop());
+      start(p.offset >= clip.seconds - 0.1 ? 0 : p.offset);
+    });
+    wave.addEventListener("click", async e => {
+      const r = wave.getBoundingClientRect(), t = (e.clientX - r.left) / r.width * clip.seconds;
+      if (p.playing) { stop(); p.offset = t; start(t); } else { p.offset = t; draw(); }
+    });
+    new ResizeObserver(draw).observe(wave);
+  }
+})();
+</script>
+</body>
+</html>
