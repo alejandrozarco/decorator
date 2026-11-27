@@ -21,7 +21,7 @@ Behind the knobs are **ten [Neural Amp Modeler](https://github.com/sdatkinson/ne
 
 <p align="center"><img src="docs/img/settings.png" alt="The five demo settings: bypassed, then Saturation 9:00, 12:00, 3:00 and max" width="640"></p>
 
-**[Open the demo page](docs/index.html)** to play each clip and switch between the clean DI and the plugin while it keeps playing. The page can also match loudness, or add a simple speaker filter. It's a static page: publish `docs/` with GitHub Pages, or run `python3 -m http.server` inside `docs/`.
+**[▶ Open the live demo page](https://alejandrozarco.github.io/decorator/)** to play each clip and switch between the clean DI and the plugin while it keeps playing. The page can also match loudness, or add a simple speaker filter. The page source is in [`docs/`](docs/index.html). To run it locally, use `python3 -m http.server` inside `docs/`.
 
 Or download the MP3s. Volume is at 12:00 in all of them, and the levels are real, not loudness-matched:
 
