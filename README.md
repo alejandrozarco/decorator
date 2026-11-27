@@ -49,22 +49,24 @@ At a capture position the plugin runs exactly the same model as the matching TON
 
 ## Listen
 
-<p align="center"><img src="docs/img/settings.png" alt="The five demo settings: bypassed, then Saturation 9:00, 12:00, 3:00 and max" width="640"></p>
+<p align="center"><img src="docs/img/settings.png" alt="Five of the demo settings: bypassed, then Saturation 9:00, 12:00, 3:00 and max" width="640"></p>
 
 **[▶ Open the live demo page](https://alejandrozarco.github.io/decorator/)** to play each clip and switch between the clean DI and the plugin while it keeps playing. The page can also match loudness, or add a simple speaker filter. The page source is in [`docs/`](docs/index.html). To run it locally, use `python3 -m http.server` inside `docs/`.
 
 Or download the MP3s. Volume is at 12:00 in all of them, and the levels are real, not loudness-matched:
 
-| Clip | Clean DI | Sat 9:00 | Sat 10:30* | Sat 12:00 | Sat 1:30* | Sat 3:00 | Sat max |
+| Clip | Dry | Sat 9:00 | Sat 10:30* | Sat 12:00 | Sat 1:30* | Sat 3:00 | Sat max |
 |---|---|---|---|---|---|---|---|
-| Open chords | [▶](docs/audio/chords_off.mp3) | [▶](docs/audio/chords_sat0900.mp3) | [▶](docs/audio/chords_sat1030.mp3) | [▶](docs/audio/chords_sat1200.mp3) | [▶](docs/audio/chords_sat0130.mp3) | [▶](docs/audio/chords_sat0300.mp3) | [▶](docs/audio/chords_sat0500.mp3) |
-| Arpeggios | [▶](docs/audio/arpeggios_off.mp3) | [▶](docs/audio/arpeggios_sat0900.mp3) | [▶](docs/audio/arpeggios_sat1030.mp3) | [▶](docs/audio/arpeggios_sat1200.mp3) | [▶](docs/audio/arpeggios_sat0130.mp3) | [▶](docs/audio/arpeggios_sat0300.mp3) | [▶](docs/audio/arpeggios_sat0500.mp3) |
-| Lead line | [▶](docs/audio/lead_off.mp3) | [▶](docs/audio/lead_sat0900.mp3) | [▶](docs/audio/lead_sat1030.mp3) | [▶](docs/audio/lead_sat1200.mp3) | [▶](docs/audio/lead_sat0130.mp3) | [▶](docs/audio/lead_sat0300.mp3) | [▶](docs/audio/lead_sat0500.mp3) |
-| Low riff | [▶](docs/audio/riff_off.mp3) | [▶](docs/audio/riff_sat0900.mp3) | [▶](docs/audio/riff_sat1030.mp3) | [▶](docs/audio/riff_sat1200.mp3) | [▶](docs/audio/riff_sat0130.mp3) | [▶](docs/audio/riff_sat0300.mp3) | [▶](docs/audio/riff_sat0500.mp3) |
+| Guitar: Open chords | [▶](docs/audio/chords_off.mp3) | [▶](docs/audio/chords_sat0900.mp3) | [▶](docs/audio/chords_sat1030.mp3) | [▶](docs/audio/chords_sat1200.mp3) | [▶](docs/audio/chords_sat0130.mp3) | [▶](docs/audio/chords_sat0300.mp3) | [▶](docs/audio/chords_sat0500.mp3) |
+| Guitar: Arpeggios | [▶](docs/audio/arpeggios_off.mp3) | [▶](docs/audio/arpeggios_sat0900.mp3) | [▶](docs/audio/arpeggios_sat1030.mp3) | [▶](docs/audio/arpeggios_sat1200.mp3) | [▶](docs/audio/arpeggios_sat0130.mp3) | [▶](docs/audio/arpeggios_sat0300.mp3) | [▶](docs/audio/arpeggios_sat0500.mp3) |
+| Guitar: Lead line | [▶](docs/audio/lead_off.mp3) | [▶](docs/audio/lead_sat0900.mp3) | [▶](docs/audio/lead_sat1030.mp3) | [▶](docs/audio/lead_sat1200.mp3) | [▶](docs/audio/lead_sat0130.mp3) | [▶](docs/audio/lead_sat0300.mp3) | [▶](docs/audio/lead_sat0500.mp3) |
+| Guitar: Low riff | [▶](docs/audio/riff_off.mp3) | [▶](docs/audio/riff_sat0900.mp3) | [▶](docs/audio/riff_sat1030.mp3) | [▶](docs/audio/riff_sat1200.mp3) | [▶](docs/audio/riff_sat0130.mp3) | [▶](docs/audio/riff_sat0300.mp3) | [▶](docs/audio/riff_sat0500.mp3) |
+| Rhodes: Rhodes | [▶](docs/audio/rhodes_off.mp3) | [▶](docs/audio/rhodes_sat0900.mp3) | [▶](docs/audio/rhodes_sat1030.mp3) | [▶](docs/audio/rhodes_sat1200.mp3) | [▶](docs/audio/rhodes_sat0130.mp3) | [▶](docs/audio/rhodes_sat0300.mp3) | [▶](docs/audio/rhodes_sat0500.mp3) |
+| Drums: Drum kit | [▶](docs/audio/drums_off.mp3) | [▶](docs/audio/drums_sat0900.mp3) | [▶](docs/audio/drums_sat1030.mp3) | [▶](docs/audio/drums_sat1200.mp3) | [▶](docs/audio/drums_sat0130.mp3) | [▶](docs/audio/drums_sat0300.mp3) | [▶](docs/audio/drums_sat0500.mp3) |
 
 \* Between capture positions: the plugin crossfades the 10:00/11:00 and 1:00/2:00 captures here.
 
-The demo guitar is the [FreePATS "Electric Guitar FSBS (direct)"](http://freepats.zenvoid.org/ElectricGuitar/clean-electric-guitar.html) sample bank, a raw DI recording of a Fender guitar released under **CC0 1.0**. The phrases are played from that bank at a typical single-coil level of about −30 dBFS RMS, then run through the plugin alone, with no amp or cab. `demo/make_demos.py` rebuilds everything.
+Demo sounds: guitar from the [FreePATS "Electric Guitar FSBS (direct)"](http://freepats.zenvoid.org/ElectricGuitar/clean-electric-guitar.html) bank, a raw DI recording of a Fender guitar (**CC0**). Rhodes from [jRhodes3d](https://github.com/sfzinstruments/jlearman.jRhodes3d) by Jeff Learman, a 1977 Rhodes Mark I Stage 73 (samples CC BY 4.0, music made with them CC0). Drums from [MuldjordKit](http://freepats.zenvoid.org/Percussion/acoustic-drum-kit.html) by Lars Muldjord (**CC BY 4.0**). The phrases are played dry at realistic levels (guitar about −30 dBFS RMS, Rhodes −26, drums peaking at −1 dBFS), then run through the plugin alone, with no amp or cab. `demo/make_demos.py` rebuilds everything.
 
 ## How it works
 
@@ -120,7 +122,7 @@ Use the schemes `macOS-VST3` and `macOS-APP` for the other formats. The build co
 | UI bitmaps (brushed steel, knobs, footswitch, LED) lit from height maps | `source/Decorator/scripts/render_ui.py` | `resources/img/ui_*@2x.png` |
 | Embed bitmaps in the binary | `source/Decorator/scripts/embed_assets.py` | `DecoratorAssets.inc` |
 | README / demo page images | `demo/make_images.py` | `docs/img/` |
-| Demo audio | `demo/make_demos.py <FreePATS bank folder>` | `docs/audio/`, `docs/demos.json` |
+| Demo audio | `demo/make_demos.py --guitar … --rhodes … --drums …` | `docs/audio/`, `docs/demos.json` |
 
 Python needs `numpy scipy pillow soundfile pedalboard`, and `ffmpeg` must be installed for the audio.
 
@@ -149,6 +151,6 @@ It's built on:
 - [NeuralAmpModelerPlugin](https://github.com/sdatkinson/NeuralAmpModelerPlugin), [NeuralAmpModelerCore](https://github.com/sdatkinson/NeuralAmpModelerCore) and [AudioDSPTools](https://github.com/sdatkinson/AudioDSPTools), © Steven Atkinson, MIT. The original notice is in [LICENSE-MIT-NeuralAmpModeler.txt](source/LICENSE-MIT-NeuralAmpModeler.txt).
 - [iPlug2](https://github.com/iPlug2/iPlug2) (zlib-style licence), [Eigen](https://eigen.tuxfamily.org) (MPL 2.0) and the VST3 SDK (MIT).
 - The fonts Montserrat, Archivo Black and Michroma (SIL OFL 1.1) and Roboto (Apache 2.0).
-- The demo audio source: FreePATS Electric Guitar FSBS (direct), CC0 1.0.
+- Demo audio sources: FreePATS Electric Guitar FSBS (direct), CC0 1.0. jRhodes3d by Jeff Learman (samples CC BY 4.0). MuldjordKit by Lars Muldjord, FreePATS version (CC BY 4.0).
 
 The pedal name and maker are left out on purpose. This project isn't affiliated with or endorsed by any pedal manufacturer.

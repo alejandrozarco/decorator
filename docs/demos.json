@@ -2,7 +2,7 @@
  "settings": [
   {
    "id": "off",
-   "label": "Off (clean DI)",
+   "label": "Off (dry)",
    "saturation": null,
    "volume": null
   },
@@ -47,6 +47,7 @@
   {
    "id": "chords",
    "title": "Open chords",
+   "group": "Guitar",
    "seconds": 24.36,
    "files": {
     "off": "audio/chords_off.mp3",
@@ -59,17 +60,18 @@
    },
    "rms_db": {
     "off": -30.0,
-    "sat0900": -28.77,
-    "sat1030": -28.88,
-    "sat1200": -28.84,
-    "sat0130": -26.82,
-    "sat0300": -26.26,
-    "sat0500": -25.79
+    "sat0900": -28.75,
+    "sat1030": -28.86,
+    "sat1200": -28.81,
+    "sat0130": -26.79,
+    "sat0300": -26.22,
+    "sat0500": -25.76
    }
   },
   {
    "id": "arpeggios",
    "title": "Arpeggios",
+   "group": "Guitar",
    "seconds": 22.0,
    "files": {
     "off": "audio/arpeggios_off.mp3",
@@ -82,17 +84,18 @@
    },
    "rms_db": {
     "off": -30.0,
-    "sat0900": -28.64,
-    "sat1030": -28.69,
-    "sat1200": -28.49,
-    "sat0130": -26.26,
-    "sat0300": -25.43,
-    "sat0500": -24.94
+    "sat0900": -28.71,
+    "sat1030": -28.7,
+    "sat1200": -28.45,
+    "sat0130": -26.16,
+    "sat0300": -25.26,
+    "sat0500": -24.75
    }
   },
   {
    "id": "lead",
    "title": "Lead line",
+   "group": "Guitar",
    "seconds": 12.8,
    "files": {
     "off": "audio/lead_off.mp3",
@@ -106,16 +109,17 @@
    "rms_db": {
     "off": -30.0,
     "sat0900": -28.72,
-    "sat1030": -29.94,
-    "sat1200": -31.45,
-    "sat0130": -30.37,
-    "sat0300": -30.41,
-    "sat0500": -29.9
+    "sat1030": -29.8,
+    "sat1200": -31.2,
+    "sat0130": -30.14,
+    "sat0300": -30.2,
+    "sat0500": -29.67
    }
   },
   {
    "id": "riff",
    "title": "Low riff",
+   "group": "Guitar",
    "seconds": 11.71,
    "files": {
     "off": "audio/riff_off.mp3",
@@ -128,12 +132,60 @@
    },
    "rms_db": {
     "off": -30.0,
-    "sat0900": -29.07,
-    "sat1030": -29.58,
-    "sat1200": -29.79,
-    "sat0130": -27.74,
-    "sat0300": -27.17,
-    "sat0500": -26.77
+    "sat0900": -28.98,
+    "sat1030": -29.44,
+    "sat1200": -29.68,
+    "sat0130": -27.58,
+    "sat0300": -26.99,
+    "sat0500": -26.59
+   }
+  },
+  {
+   "id": "rhodes",
+   "title": "Rhodes",
+   "group": "Rhodes",
+   "seconds": 28.26,
+   "files": {
+    "off": "audio/rhodes_off.mp3",
+    "sat0900": "audio/rhodes_sat0900.mp3",
+    "sat1030": "audio/rhodes_sat1030.mp3",
+    "sat1200": "audio/rhodes_sat1200.mp3",
+    "sat0130": "audio/rhodes_sat0130.mp3",
+    "sat0300": "audio/rhodes_sat0300.mp3",
+    "sat0500": "audio/rhodes_sat0500.mp3"
+   },
+   "rms_db": {
+    "off": -26.0,
+    "sat0900": -24.99,
+    "sat1030": -25.66,
+    "sat1200": -26.41,
+    "sat0130": -24.77,
+    "sat0300": -23.72,
+    "sat0500": -23.3
+   }
+  },
+  {
+   "id": "drums",
+   "title": "Drum kit",
+   "group": "Drums",
+   "seconds": 18.65,
+   "files": {
+    "off": "audio/drums_off.mp3",
+    "sat0900": "audio/drums_sat0900.mp3",
+    "sat1030": "audio/drums_sat1030.mp3",
+    "sat1200": "audio/drums_sat1200.mp3",
+    "sat0130": "audio/drums_sat0130.mp3",
+    "sat0300": "audio/drums_sat0300.mp3",
+    "sat0500": "audio/drums_sat0500.mp3"
+   },
+   "rms_db": {
+    "off": -25.42,
+    "sat0900": -28.84,
+    "sat1030": -31.31,
+    "sat1200": -33.52,
+    "sat0130": -32.57,
+    "sat0300": -32.49,
+    "sat0500": -32.23
    }
   }
  ]

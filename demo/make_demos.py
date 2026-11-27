@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
 """Build the README / demo-page audio.
 
-1. Plays short guitar phrases from the FreePATS "Electric Guitar FSBS (direct)" sample bank
-   (CC0 1.0, http://freepats.zenvoid.org/ElectricGuitar/clean-electric-guitar.html), i.e. an
-   unprocessed DI guitar, at a realistic instrument level.
+1. Plays short phrases from free sample sets, dry, at realistic instrument levels:
+   - guitar: FreePATS "Electric Guitar FSBS (direct)", an unprocessed DI guitar (CC0 1.0)
+     http://freepats.zenvoid.org/ElectricGuitar/clean-electric-guitar.html
+   - Rhodes: jRhodes3d by Jeff Learman, a 1977 Rhodes Mark I Stage 73 (samples CC BY 4.0,
+     music made with it CC0)  https://github.com/sfzinstruments/jlearman.jRhodes3d
+   - drums: MuldjordKit by Lars Muldjord, FreePATS SFZ version (CC BY 4.0)
+     http://freepats.zenvoid.org/Percussion/acoustic-drum-kit.html
 2. Runs each phrase through the Decorator VST3 at a few Saturation settings.
 3. Writes MP3s plus docs/demos.json (file list and loudness for the page's level-match toggle).
 
-usage: make_demos.py PATH/TO/"EGuitarFSBS-direct SFZ+FLAC-20220911" [--vst3 PATH] [--out docs/audio]
+usage: make_demos.py --guitar DIR --rhodes DIR --drums DIR [--vst3 PATH] [--out docs/audio]
+       (each DIR is the unpacked sample set, containing its .sfz)
 needs: numpy scipy soundfile pedalboard, ffmpeg on PATH
 """
 import argparse, json, os, re, subprocess
@@ -16,50 +21,78 @@ from scipy.signal import resample
 
 SR = 48000
 ap = argparse.ArgumentParser()
-ap.add_argument("bank")
+ap.add_argument("--guitar", required=True)
+ap.add_argument("--rhodes", required=True, help="jRhodes3d checkout")
+ap.add_argument("--drums", required=True, help="MuldjordKit SFZ+FLAC folder")
 ap.add_argument("--vst3", default=os.path.expanduser("~/Library/Audio/Plug-Ins/VST3/Decorator.vst3"))
 ap.add_argument("--out", default=os.path.join(os.path.dirname(__file__), "..", "docs", "audio"))
 a = ap.parse_args()
 os.makedirs(a.out, exist_ok=True)
 rng = np.random.default_rng(7)
 
-# ---------- minimal SFZ reader (only what this bank uses) ----------
-sfz = open([os.path.join(a.bank, f) for f in os.listdir(a.bank) if f.endswith(".sfz")][0]).read()
-sfz = re.sub(r"//.*", "", sfz)
-groups = []
-for g in sfz.split("<group>")[1:]:
-    head, *regions = g.split("<region>")
-    kv = dict(re.findall(r"(\w+)=(\S+)", head))
-    samples = [dict(re.findall(r"(\w+)=(\S+)", r))["sample"] for r in regions]
-    if "key" in kv: kv.setdefault("lokey", kv["key"]); kv.setdefault("hikey", kv["key"]); kv.setdefault("pitch_keycenter", kv["key"])
-    groups.append(dict(lo=int(kv["lokey"]), hi=int(kv["hikey"]), lovel=int(kv.get("lovel", 0)),
-                       hivel=int(kv.get("hivel", 127)), key=int(kv["pitch_keycenter"]), samples=samples))
-cache = {}
-def load(path):
-    if path not in cache:
-        x, sr = sf.read(os.path.join(a.bank, path), always_2d=True)
-        x = x.mean(axis=1)
-        if sr != SR: x = resample(x, int(len(x) * SR / sr))
-        cache[path] = x
-    return cache[path]
+# ---------- small SFZ player (key/vel ranges, round robins, note names, default_path) ----------
+NOTE = {"c": 0, "d": 2, "e": 4, "f": 5, "g": 7, "a": 9, "b": 11}
+def midi_of(v):
+    v = v.strip()
+    if re.fullmatch(r"-?\d+", v): return int(v)
+    m = re.fullmatch(r"([a-gA-G])([#b]?)(-?\d+)", v)
+    pc = NOTE[m.group(1).lower()] + {"#": 1, "b": -1, "": 0}[m.group(2)]
+    return 12 * (int(m.group(3)) + 1) + pc          # SFZ convention: C4 = 60
 
-def note(midi, vel, dur, ring=0.08):
-    """One plucked note: pick a round-robin sample, repitch, damp after dur seconds."""
-    cand = [g for g in groups if g["lo"] <= midi <= g["hi"] and g["lovel"] <= vel <= g["hivel"]]
-    g = cand[0]
-    x = load(g["samples"][rng.integers(len(g["samples"]))])
-    shift = midi - g["key"]
-    if shift: x = resample(x, int(round(len(x) / 2 ** (shift / 12))))
-    n = min(len(x), int((dur + ring) * SR))
-    x = x[:n].copy()
-    r = min(int(ring * SR), n)
-    x[n - r:] *= np.linspace(1, 0, r) ** 2            # finger damping
-    return x * (0.55 + 0.45 * vel / 127)
+class SFZ:
+    def __init__(self, path):
+        self.dir = os.path.dirname(path); self.cache = {}; self.regions = []
+        text = re.sub(r"//.*", "", open(path).read())
+        dp = re.search(r"default_path=(\S+)", text); self.prefix = dp.group(1) if dp else ""
+        group = {}
+        for tag, body in re.findall(r"<(\w+)>([^<]*)", text):
+            kv = dict(re.findall(r"(\w+)=(\S+)", body))
+            if tag in ("group", "master", "global"): group = dict(kv); continue
+            if tag != "region": continue
+            r = {**group, **kv}
+            if "key" in r:
+                for k in ("lokey", "hikey", "pitch_keycenter"): r.setdefault(k, r["key"])
+            self.regions.append(dict(lo=midi_of(r.get("lokey", "0")), hi=midi_of(r.get("hikey", "127")),
+                                     key=midi_of(r.get("pitch_keycenter", r.get("lokey", "60"))),
+                                     lovel=int(r.get("lovel", 0)), hivel=int(r.get("hivel", 127)),
+                                     lorand=float(r.get("lorand", 0)), hirand=float(r.get("hirand", 1)),
+                                     release=float(r.get("ampeg_release", 0.08)), sample=self.prefix + r["sample"]))
+    def load(self, p):
+        if p not in self.cache:
+            x, sr = sf.read(os.path.join(self.dir, p.replace("\\", "/")), always_2d=True)
+            x = x.mean(axis=1)
+            if sr != SR: x = resample(x, int(len(x) * SR / sr))
+            self.cache[p] = x
+        return self.cache[p]
+    def note(self, midi, vel, dur=None, ring=None, gain=None):
+        """One note: pick the region (round robin by random), repitch, release after dur seconds (None = let ring)."""
+        rr = rng.random()
+        cand = [g for g in self.regions if g["lo"] <= midi <= g["hi"] and g["lovel"] <= vel <= g["hivel"]]
+        cand = [g for g in cand if g["lorand"] <= rr < g["hirand"]] or cand
+        g = cand[0]
+        x = self.load(g["sample"])
+        shift = midi - g["key"]
+        if shift: x = resample(x, int(round(len(x) / 2 ** (shift / 12))))
+        if dur is not None:
+            ring = g["release"] if ring is None else ring
+            n = min(len(x), int((dur + ring) * SR)); x = x[:n].copy()
+            r = min(int(ring * SR), n); x[n - r:] *= np.linspace(1, 0, r) ** 2
+        return x * (gain if gain is not None else 0.55 + 0.45 * vel / 127)
 
-def render(events, length):
-    y = np.zeros(int(length * SR) + SR)
+def find_sfz(d, prefer=None):
+    c = sorted(os.path.join(r, f) for r, _, fs in os.walk(d) for f in fs if f.endswith(".sfz"))
+    if prefer: c = [p for p in c if os.path.basename(p) == prefer] or c
+    return c[0]
+GTR = SFZ(find_sfz(a.guitar))
+RHO = SFZ(find_sfz(a.rhodes, "jRhodes3d-mono-no-xfade.sfz"))
+DRM = SFZ(find_sfz(a.drums))
+note = GTR.note
+
+def render(events, length, inst=None):
+    inst = inst or GTR
+    y = np.zeros(int(length * SR) + 4 * SR)
     for t, midi, vel, dur in events:
-        s = note(midi, vel, dur); i = int(t * SR)
+        s = inst.note(midi, vel, dur); i = int(t * SR)
         y[i:i + len(s)] += s[: len(y) - i]
     return y[: int(length * SR)]
 
@@ -100,12 +133,58 @@ for rep in range(4):
 ev += strum(16 * b, [40, 47, 52], 124, 4 * b, gap=0.008)
 P["riff"] = ("Low riff", render(ev, 20 * b + 1.0))
 
-# ---------- level: a typical single-coil DI, about -30 dBFS active RMS at 12.5 dBu = 0 dBFS ----------
+GROUP = {k: "Guitar" for k in P}
+
+# 5. Rhodes: slow soul changes, voicings in the middle register, a little melody on top. 76 bpm
+b = 60 / 76; ev = []
+prog = [[53, 57, 60, 64, 67], [52, 55, 59, 62, 64], [50, 53, 57, 60, 64], [43, 53, 57, 59, 64]]  # Fmaj9 Em9 Dm9 G13
+for bar, ch in enumerate(prog * 2):
+    t0 = bar * 4 * b
+    bass = ch[0] - 12
+    ev.append((t0, bass, 92, 3.8 * b))
+    for k, m in enumerate(ch[1:]):
+        ev.append((t0 + 0.012 * k, m, 70 + 6 * (k % 2), 1.9 * b))          # chord on 1
+        ev.append((t0 + 2.5 * b + 0.01 * k, m, 62 + 6 * (k % 2), 1.4 * b))  # push on the and of 3
+mel = [(3.0, 72, .5), (3.5, 74, .5), (4.0, 76, 1.5), (7.0, 74, .5), (7.5, 72, .5), (8.0, 71, 2), (11.0, 69, .5), (11.5, 71, .5),
+       (12.0, 72, 1), (13.0, 74, 1), (14.0, 71, 2), (19.0, 76, .5), (19.5, 79, .5), (20.0, 81, 1.5), (23.0, 79, .5), (23.5, 76, .5),
+       (24.0, 74, 2), (27.0, 72, .5), (27.5, 74, .5), (28.0, 71, 4)]
+ev += [(t * b, m, 96, d * b) for t, m, d in mel]
+P["rhodes"] = ("Rhodes", render(ev, 8 * 4 * b + 3.0, RHO)); GROUP["rhodes"] = "Rhodes"
+
+# 6. Drums: half-time groove, ghost notes, a fill and a crash. 92 bpm, hats in eighths
+b = 60 / 92; ev = []
+K, S, HC, HO, RIDE, CR, T1, T2, T4 = 48, 50, 52, 53, 54, 58, 61, 62, 64
+for bar in range(4):
+    t0 = bar * 4 * b
+    for e in range(8):
+        if bar == 3 and e >= 4: break
+        ev.append((t0 + e * b / 2, HO if (bar == 1 and e == 7) else HC, 96 if e % 2 == 0 else 70, None))
+    for t, v in ((0, 118), (1.5, 96), (2.75, 86)) if bar % 2 == 0 else ((0, 118), (0.75, 84), (2.5, 104)):
+        ev.append((t0 + t * b, K, v, None))
+    ev.append((t0 + 2 * b, S, 118, None))
+    for t in (0.75, 3.25):
+        ev.append((t0 + t * b, S, 34, None))           # ghost notes
+fill = [(14.0, S, 100), (14.25, S, 80), (14.5, T1, 108), (14.75, T1, 96), (15.0, T2, 108), (15.25, T2, 96), (15.5, T4, 114), (15.75, T4, 104)]
+ev += [(t * b, n, v, None) for t, n, v in fill]
+ev += [(16 * b, CR, 124, None), (16 * b, K, 124, None)]
+for bar in range(4, 6):
+    t0 = bar * 4 * b
+    for e in range(8): ev.append((t0 + e * b / 2, RIDE, 100 if e % 2 == 0 else 78, None))
+    for t, v in ((0, 118), (1.5, 96), (2.75, 86)): ev.append((t0 + t * b, K, v, None))
+    ev.append((t0 + 2 * b, S, 120, None))
+ev += [(24 * b, CR, 124, None), (24 * b, K, 124, None)]
+y = render(ev, 24 * b + 3.0, DRM)
+P["drums"] = ("Drum kit", y); GROUP["drums"] = "Drums"
+
+# ---------- levels: realistic dry signals, 0 dBFS = 12.5 dBu at the interface ----------
+# guitar DI about -30 dBFS active RMS; Rhodes (hotter, line-ish pickup) -26; drum submix -24 (peaky)
+TARGET = {"Guitar": -30.0, "Rhodes": -26.0, "Drums": -24.0}
 def active_rms(x, n=2400):
     f = np.sqrt(np.mean(x[: len(x) // n * n].reshape(-1, n) ** 2, axis=1) + 1e-20)
     return 20 * np.log10(np.sqrt(np.mean(f[f > f.max() * 10 ** (-30 / 20)] ** 2)))
 for k, (name, x) in P.items():
-    x *= 10 ** ((-30 - active_rms(x)) / 20)
+    pk = 20 * np.log10(np.max(np.abs(x)))
+    x *= 10 ** (min(TARGET[GROUP[k]] - active_rms(x), -1.0 - pk) / 20)   # never above -1 dBFS peak
     fade = int(0.3 * SR); x[-fade:] *= np.linspace(1, 0, fade)
     P[k] = (name, x)
 
@@ -113,7 +192,7 @@ for k, (name, x) in P.items():
 import pedalboard as pb
 plug = pb.load_plugin(a.vst3)
 plug.interface_level_dbu = 12.5
-SETTINGS = [("off", "Off (clean DI)", None, None), ("sat0900", "Saturation 9:00", "9:00", "12:00"),
+SETTINGS = [("off", "Off (dry)", None, None), ("sat0900", "Saturation 9:00", "9:00", "12:00"),
             ("sat1030", "Saturation 10:30", "10:30", "12:00"), ("sat1200", "Saturation 12:00", "12:00", "12:00"),
             ("sat0130", "Saturation 1:30", "1:30", "12:00"), ("sat0300", "Saturation 3:00", "3:00", "12:00"),
             ("sat0500", "Saturation max", "5:00", "12:00")]
@@ -122,7 +201,7 @@ def mp3(x, path):
     tmp = path + ".wav"; sf.write(tmp, x.astype(np.float32), SR, subtype="FLOAT")
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", tmp, "-c:a", "libmp3lame", "-b:a", "192k", path], check=True); os.remove(tmp)
 for k, (name, x) in P.items():
-    clip = {"id": k, "title": name, "seconds": round(len(x) / SR, 2), "files": {}, "rms_db": {}}
+    clip = {"id": k, "title": name, "group": GROUP[k], "seconds": round(len(x) / SR, 2), "files": {}, "rms_db": {}}
     for sid, label, sat, vol in SETTINGS:
         if sat is None: y = x
         else:

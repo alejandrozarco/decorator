@@ -31,6 +31,15 @@ h1 { margin: 0 0 4px; font-size: 32px; letter-spacing: .02em; }
 .btn { background: var(--accent); color: var(--accent-ink); text-decoration: none; font-weight: 650; padding: 10px 18px; border-radius: 10px; }
 .link { color: var(--accent); font-weight: 600; }
 .sub { margin: 0 0 6px; color: var(--muted); max-width: 60ch; }
+.dl { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 0 0 26px; }
+.dlcol { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.dl h2 { margin: 0; font-size: 18px; }
+.dl h2 span { display: block; font-size: 13px; font-weight: 400; color: var(--muted); }
+.small { margin: 0; font-size: 14px; color: var(--muted); }
+.small a { color: var(--accent); }
+.dlnote { grid-column: 1 / -1; }
+h3.group { margin: 26px 0 12px; font-size: 20px; }
+@media (max-width: 760px) { .dl { grid-template-columns: 1fr; } }
 .controls { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; margin: 0 0 18px; color: var(--muted); font-size: 14px; }
 .controls label { display: inline-flex; gap: 8px; align-items: center; cursor: pointer; }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px; margin-bottom: 16px; display: grid; grid-template-columns: 76px 1fr; gap: 18px; align-items: center; }
@@ -44,6 +53,7 @@ canvas.wave { width: 100%; height: 48px; display: block; cursor: pointer; margin
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip { border: 1px solid var(--line); background: var(--chip); color: var(--ink); border-radius: 999px; padding: 6px 12px; font-size: 14px; cursor: pointer; }
 .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.note a { color: var(--accent); }
 .note { color: var(--muted); font-size: 14px; margin-top: 28px; }
 .note code { background: var(--chip); padding: 1px 5px; border-radius: 4px; }
 .loading { color: var(--muted); }
@@ -60,11 +70,25 @@ canvas.wave { width: 100%; height: 48px; display: block; cursor: pointer; margin
     <img src="img/decorator-small.png" alt="The Decorator plugin: a brushed-steel pedal with Saturation and Volume knobs and a bypass footswitch">
     <div>
       <h1>Decorator</h1>
-      <p class="sub">Tape saturation built from neural captures of a real stompbox. Press play, then switch between the clean DI and the plugin while the clip keeps playing.</p>
-      <p class="cta"><a class="btn" href="https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-macOS.pkg">⬇ Download for macOS</a> <a class="link" href="https://github.com/alejandrozarco/decorator#decorator">Install steps</a></p>
+      <p class="sub">Tape saturation built from neural captures of a real stompbox. Press play, then switch between the dry signal and the plugin while the clip keeps playing. Guitar, Rhodes and drums.</p>
+      <p class="cta"><a class="btn" href="#download">⬇ Download</a> <a class="link" href="https://github.com/alejandrozarco/decorator#install">Install steps</a></p>
       <p class="sub">The same ten captures are on TONE3000 as a <a href="https://www.tone3000.com/tones/113208">NAM profile pack</a>, with one profile per Saturation step. The plugin turns them into continuous Saturation and Volume knobs. Source: <a href="https://github.com/alejandrozarco/decorator">GitHub</a>.</p>
     </div>
   </header>
+
+
+  <section id="download" class="dl" aria-label="Downloads">
+    <div class="dlcol"><h2>macOS <span>12+, Apple silicon and Intel</span></h2>
+      <a class="btn" href="https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-macOS.pkg">Installer (.pkg): AU, VST3 and app</a>
+      <p class="small"><a href="https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-VST3-macOS.zip">VST3</a> · <a href="https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-AU-macOS.zip">AU</a> · <a href="https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-App-macOS.zip">App</a> · <a href="https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-macOS.zip">all three (zip)</a></p></div>
+    <div class="dlcol"><h2>Windows <span>10/11, 64-bit</span></h2>
+      <a class="btn" href="https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-VST3-Windows.zip">VST3 (.zip)</a>
+      <p class="small"><a href="https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-Windows.zip">VST3 + standalone app</a></p></div>
+    <div class="dlcol"><h2>Linux <span>x86_64</span></h2>
+      <a class="btn" href="https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-VST3-Linux.zip">VST3 (.zip)</a>
+      <p class="small"><a href="https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-Linux.zip">VST3 + LV2 + CLAP</a></p></div>
+    <p class="small dlnote">Free and open source (GPLv3). The files aren't signed with a paid developer account, so macOS or Windows asks you to confirm once. See the <a href="https://github.com/alejandrozarco/decorator#install">install steps</a>.</p>
+  </section>
 
   <div class="controls">
     <label><input type="checkbox" id="match"> Match loudness</label>
@@ -74,7 +98,7 @@ canvas.wave { width: 100%; height: 48px; display: block; cursor: pointer; margin
 
   <div id="clips"><p class="loading">Loading demos…</p></div>
 
-  <p class="note">The clean guitar is the FreePATS “Electric Guitar FSBS (direct)” sample bank, an unprocessed DI recording released under CC0. Every clip is rendered through the plugin itself, with nothing else added. The speaker filter is a basic browser high-pass and low-pass, not an amp or cab model. To open this page locally, run <code>python3 -m http.server</code> in <code>docs/</code>.</p>
+  <p class="note">Sounds: guitar from the FreePATS “Electric Guitar FSBS (direct)” bank, an unprocessed DI recording (CC0). Rhodes from <a href="https://github.com/sfzinstruments/jlearman.jRhodes3d">jRhodes3d</a> by Jeff Learman, a 1977 Rhodes Mark I Stage 73 (samples CC BY 4.0, music made with them CC0). Drums from <a href="http://freepats.zenvoid.org/Percussion/acoustic-drum-kit.html">MuldjordKit</a> by Lars Muldjord (CC BY 4.0). Every clip is mono, played dry and then run through the plugin itself, with nothing else added. The speaker filter is a basic browser high-pass and low-pass, not an amp or cab model. To open this page locally, run <code>python3 -m http.server</code> in <code>docs/</code>.</p>
 </main>
 <script>
 (async function () {
@@ -110,7 +134,11 @@ canvas.wave { width: 100%; height: 48px; display: block; cursor: pointer; margin
   const fmt = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
   root.innerHTML = "";
+  let lastGroup = null;
   for (const clip of manifest.clips) {
+    if (clip.group && clip.group !== lastGroup) {
+      const h = document.createElement("h3"); h.className = "group"; h.textContent = clip.group; root.appendChild(h); lastGroup = clip.group;
+    }
     const el = document.createElement("section");
     el.className = "card";
     el.innerHTML = `<img class="pedal" alt="" src="${thumbs.off}">
@@ -136,10 +164,21 @@ canvas.wave { width: 100%; height: 48px; display: block; cursor: pointer; margin
     async function load() {
       if (loading) return loading;
       audio();
+      // load every version; one that fails is greyed out instead of stopping the whole clip
       loading = Promise.all(manifest.settings.map(async s => {
-        const ab = await (await fetch(clip.files[s.id])).arrayBuffer();
-        p.buffers[s.id] = await new Promise((res, rej) => ctx.decodeAudioData(ab, res, rej));
-      })).then(() => { p.peaks = peaks(p.buffers.off); draw(); });
+        try {
+          const r = await fetch(clip.files[s.id]);
+          if (!r.ok) throw new Error(r.status);
+          const ab = await r.arrayBuffer();
+          p.buffers[s.id] = await new Promise((res, rej) => ctx.decodeAudioData(ab, res, rej));
+        } catch (e) {
+          const c = chips.querySelector(`[data-id="${s.id}"]`);
+          if (c) { c.disabled = true; c.title = "Couldn't load this version"; c.style.opacity = 0.4; }
+        }
+      })).then(() => {
+        if (!p.buffers[p.current] && Object.keys(p.buffers).length) select(Object.keys(p.buffers)[0]);
+        p.peaks = p.buffers.off ? peaks(p.buffers.off) : null; draw();
+      });
       return loading;
     }
     function peaks(buf) {
@@ -171,7 +210,7 @@ canvas.wave { width: 100%; height: 48px; display: block; cursor: pointer; margin
     };
     function start(at) {
       p.bus = ctx.createGain(); p.bus.connect(cabBox.checked ? hp : master);
-      p.sources = manifest.settings.map(s => {
+      p.sources = manifest.settings.filter(s => p.buffers[s.id]).map(s => {
         const src = ctx.createBufferSource(); src.buffer = p.buffers[s.id];
         const g = ctx.createGain(); src.connect(g); g.connect(p.bus); p.gains[s.id] = g; return src;
       });
@@ -199,6 +238,7 @@ canvas.wave { width: 100%; height: 48px; display: block; cursor: pointer; margin
       audio(); if (ctx.state === "suspended") await ctx.resume();
       if (p.playing) { stop(); return; }
       btn.disabled = true; await load(); btn.disabled = false;
+      if (!Object.keys(p.buffers).length) return;
       players.forEach(o => o !== p && o.stop && o.stop());
       start(p.offset >= clip.seconds - 0.1 ? 0 : p.offset);
     });
