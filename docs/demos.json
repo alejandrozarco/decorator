@@ -48,6 +48,7 @@
    "id": "chords",
    "title": "Open chords",
    "group": "Guitar",
+   "volume": "12:00",
    "seconds": 24.36,
    "files": {
     "off": "audio/chords_off.mp3",
@@ -72,6 +73,7 @@
    "id": "arpeggios",
    "title": "Arpeggios",
    "group": "Guitar",
+   "volume": "12:00",
    "seconds": 22.0,
    "files": {
     "off": "audio/arpeggios_off.mp3",
@@ -96,6 +98,7 @@
    "id": "lead",
    "title": "Lead line",
    "group": "Guitar",
+   "volume": "12:00",
    "seconds": 12.8,
    "files": {
     "off": "audio/lead_off.mp3",
@@ -120,6 +123,7 @@
    "id": "riff",
    "title": "Low riff",
    "group": "Guitar",
+   "volume": "12:00",
    "seconds": 11.71,
    "files": {
     "off": "audio/riff_off.mp3",
@@ -144,6 +148,7 @@
    "id": "rhodes",
    "title": "Rhodes",
    "group": "Rhodes",
+   "volume": "12:00",
    "seconds": 28.26,
    "files": {
     "off": "audio/rhodes_off.mp3",
@@ -168,7 +173,8 @@
    "id": "drums",
    "title": "Drum kit",
    "group": "Drums",
-   "seconds": 18.65,
+   "volume": "2:30",
+   "seconds": 21.2,
    "files": {
     "off": "audio/drums_off.mp3",
     "sat0900": "audio/drums_sat0900.mp3",
@@ -179,13 +185,13 @@
     "sat0500": "audio/drums_sat0500.mp3"
    },
    "rms_db": {
-    "off": -25.42,
-    "sat0900": -28.84,
-    "sat1030": -31.31,
-    "sat1200": -33.52,
-    "sat0130": -32.57,
-    "sat0300": -32.49,
-    "sat0500": -32.23
+    "off": -24.0,
+    "sat0900": -20.46,
+    "sat1030": -23.23,
+    "sat1200": -25.51,
+    "sat0130": -24.44,
+    "sat0300": -24.86,
+    "sat0500": -24.8
    }
   }
  ]

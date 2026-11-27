@@ -53,7 +53,7 @@ At a capture position the plugin runs exactly the same model as the matching TON
 
 **[▶ Open the live demo page](https://alejandrozarco.github.io/decorator/)** to play each clip and switch between the clean DI and the plugin while it keeps playing. The page can also match loudness, or add a simple speaker filter. The page source is in [`docs/`](docs/index.html). To run it locally, use `python3 -m http.server` inside `docs/`.
 
-Or download the MP3s. Volume is at 12:00 in all of them, and the levels are real, not loudness-matched:
+Or download the MP3s. Volume is at 12:00, except 2:30 for the drums, and the levels are real, not loudness-matched:
 
 | Clip | Dry | Sat 9:00 | Sat 10:30* | Sat 12:00 | Sat 1:30* | Sat 3:00 | Sat max |
 |---|---|---|---|---|---|---|---|

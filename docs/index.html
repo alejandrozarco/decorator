@@ -48,6 +48,7 @@ h3.group { margin: 26px 0 12px; font-size: 20px; }
 .play { width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--ink); color: var(--bg); cursor: pointer; flex: none; display: grid; place-items: center; }
 .play svg { width: 16px; height: 16px; fill: currentColor; }
 .title { font-weight: 650; }
+.vol { color: var(--muted); font-size: 13px; }
 .time { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; font-size: 14px; }
 canvas.wave { width: 100%; height: 48px; display: block; cursor: pointer; margin-bottom: 12px; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -93,7 +94,7 @@ canvas.wave { width: 100%; height: 48px; display: block; cursor: pointer; margin
   <div class="controls">
     <label><input type="checkbox" id="match"> Match loudness</label>
     <label><input type="checkbox" id="cab"> Simple speaker filter</label>
-    <span>Volume knob at 12:00 for every setting.</span>
+    <span>Volume knob at 12:00 (drums: 2:30).</span>
   </div>
 
   <div id="clips"><p class="loading">Loading demos…</p></div>
@@ -143,7 +144,7 @@ canvas.wave { width: 100%; height: 48px; display: block; cursor: pointer; margin
     el.className = "card";
     el.innerHTML = `<img class="pedal" alt="" src="${thumbs.off}">
       <div><div class="top"><button class="play" aria-label="Play ${clip.title}">${ICON_PLAY}</button>
-      <span class="title">${clip.title}</span><span class="time">0:00 / ${fmt(clip.seconds)}</span></div>
+      <span class="title">${clip.title}</span><span class="vol">Volume ${clip.volume || "12:00"}</span><span class="time">0:00 / ${fmt(clip.seconds)}</span></div>
       <canvas class="wave" aria-label="Waveform, click to seek"></canvas>
       <div class="chips" role="group" aria-label="Plugin setting"></div></div>`;
     root.appendChild(el);

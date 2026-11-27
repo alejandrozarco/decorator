@@ -151,29 +151,27 @@ mel = [(3.0, 72, .5), (3.5, 74, .5), (4.0, 76, 1.5), (7.0, 74, .5), (7.5, 72, .5
 ev += [(t * b, m, 96, d * b) for t, m, d in mel]
 P["rhodes"] = ("Rhodes", render(ev, 8 * 4 * b + 3.0, RHO)); GROUP["rhodes"] = "Rhodes"
 
-# 6. Drums: half-time groove, ghost notes, a fill and a crash. 92 bpm, hats in eighths
-b = 60 / 92; ev = []
-K, S, HC, HO, RIDE, CR, T1, T2, T4 = 48, 50, 52, 53, 54, 58, 61, 62, 64
-for bar in range(4):
+# 6. Drums: dense funk groove, 16th hats, no crashes (sustained energy rather than a few loud peaks). 100 bpm
+b = 60 / 100; ev = []
+K, S, HC, HO, RIDE, T1, T2, T4 = 48, 50, 52, 53, 54, 61, 62, 64
+kicks = [[0, 0.75, 1.5, 2.5, 3.25], [0, 0.5, 1.75, 2.5, 3.0]]
+for bar in range(8):
     t0 = bar * 4 * b
-    for e in range(8):
-        if bar == 3 and e >= 4: break
-        ev.append((t0 + e * b / 2, HO if (bar == 1 and e == 7) else HC, 96 if e % 2 == 0 else 70, None))
-    for t, v in ((0, 118), (1.5, 96), (2.75, 86)) if bar % 2 == 0 else ((0, 118), (0.75, 84), (2.5, 104)):
-        ev.append((t0 + t * b, K, v, None))
-    ev.append((t0 + 2 * b, S, 118, None))
-    for t in (0.75, 3.25):
-        ev.append((t0 + t * b, S, 34, None))           # ghost notes
-fill = [(14.0, S, 100), (14.25, S, 80), (14.5, T1, 108), (14.75, T1, 96), (15.0, T2, 108), (15.25, T2, 96), (15.5, T4, 114), (15.75, T4, 104)]
-ev += [(t * b, n, v, None) for t, n, v in fill]
-ev += [(16 * b, CR, 124, None), (16 * b, K, 124, None)]
-for bar in range(4, 6):
-    t0 = bar * 4 * b
-    for e in range(8): ev.append((t0 + e * b / 2, RIDE, 100 if e % 2 == 0 else 78, None))
-    for t, v in ((0, 118), (1.5, 96), (2.75, 86)): ev.append((t0 + t * b, K, v, None))
-    ev.append((t0 + 2 * b, S, 120, None))
-ev += [(24 * b, CR, 124, None), (24 * b, K, 124, None)]
-y = render(ev, 24 * b + 3.0, DRM)
+    last = bar == 7
+    for e in range(16):
+        if last and e >= 12: break
+        acc = e % 4 == 0
+        ev.append((t0 + e * b / 4, HO if (e == 14 and bar % 2 == 1) else HC, 92 if acc else (76 if e % 2 == 0 else 60), None))
+    for t in kicks[bar % 2]:
+        ev.append((t0 + t * b, K, 112 if t == 0 else 100, None))
+    for t in (1, 3):
+        if not (last and t == 3): ev.append((t0 + t * b, S, 114, None))
+    for t in (1.75, 2.25, 3.75):
+        if not (last and t > 3): ev.append((t0 + t * b, S, 40, None))          # ghost notes
+fill = [(3.0, S, 104), (3.25, S, 92), (3.5, T1, 108), (3.625, T1, 96), (3.75, T2, 108), (3.875, T4, 110)]
+ev += [(7 * 4 * b + t * b, n, v, None) for t, n, v in fill]
+ev += [(32 * b, K, 116, None), (32 * b, HO, 100, None)]
+y = render(ev, 32 * b + 2.0, DRM)
 P["drums"] = ("Drum kit", y); GROUP["drums"] = "Drums"
 
 # ---------- levels: realistic dry signals, 0 dBFS = 12.5 dBu at the interface ----------
@@ -200,12 +198,13 @@ manifest = {"settings": [{"id": s[0], "label": s[1], "saturation": s[2], "volume
 def mp3(x, path):
     tmp = path + ".wav"; sf.write(tmp, x.astype(np.float32), SR, subtype="FLOAT")
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", tmp, "-c:a", "libmp3lame", "-b:a", "192k", path], check=True); os.remove(tmp)
+VOLUME = {"Guitar": "12:00", "Rhodes": "12:00", "Drums": "2:30"}   # drums hit the pedal hard; turn Volume up as you would on the pedal
 for k, (name, x) in P.items():
-    clip = {"id": k, "title": name, "group": GROUP[k], "seconds": round(len(x) / SR, 2), "files": {}, "rms_db": {}}
+    clip = {"id": k, "title": name, "group": GROUP[k], "volume": VOLUME[GROUP[k]], "seconds": round(len(x) / SR, 2), "files": {}, "rms_db": {}}
     for sid, label, sat, vol in SETTINGS:
         if sat is None: y = x
         else:
-            plug.reset(); plug.bypass = False; plug.saturation = sat; plug.volume = vol
+            plug.reset(); plug.bypass = False; plug.saturation = sat; plug.volume = VOLUME[GROUP[k]]
             lat = 26
             y = plug.process(np.concatenate([x, np.zeros(lat)]).astype(np.float32)[None, :], SR)[0].astype(np.float64)[lat:]
         pk = np.max(np.abs(y))
