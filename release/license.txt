@@ -1,0 +1,7 @@
+Decorator is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 3.
+
+It is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details: https://www.gnu.org/licenses/gpl-3.0.html
+
+Source code: https://github.com/alejandrozarco/decorator
+
+Includes code from NeuralAmpModelerPlugin, NeuralAmpModelerCore and AudioDSPTools (c) Steven Atkinson, MIT License; iPlug2 (zlib-style license); Eigen (MPL 2.0); VST3 SDK (MIT). Fonts: Montserrat, Archivo Black, Michroma (SIL OFL 1.1), Roboto (Apache 2.0).

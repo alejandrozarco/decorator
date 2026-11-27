@@ -1,0 +1,17 @@
+Decorator @VERSION@ - manual install (macOS 12+, Apple silicon and Intel)
+
+Easiest: use Decorator-macOS.pkg instead. It does all of this for you.
+
+Manual install:
+1. Copy  Decorator.component  into  ~/Library/Audio/Plug-Ins/Components
+   (in Finder press Shift-Cmd-G and paste that path)
+2. Copy  Decorator.vst3  into  ~/Library/Audio/Plug-Ins/VST3
+3. Copy  Decorator.app  into  /Applications  (optional)
+4. Because the plugin isn't signed by an Apple developer account, macOS may block it.
+   Open Terminal and paste this line, then press Return:
+
+   xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/Components/Decorator.component ~/Library/Audio/Plug-Ins/VST3/Decorator.vst3 /Applications/Decorator.app
+
+5. Quit and reopen your DAW. Decorator is listed under the manufacturer "Decorator".
+
+Source and help: https://github.com/alejandrozarco/decorator

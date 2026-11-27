@@ -1,12 +1,25 @@
-<p align="center">
-  <img src="docs/img/decorator.png" alt="Decorator plugin face: brushed-steel pedal with Saturation and Volume knobs, red bypass LED and footswitch" width="240">
-</p>
+<img src="docs/img/decorator-small.png" alt="Decorator plugin: brushed-steel pedal with Saturation and Volume knobs" width="150" align="right">
 
-<h1 align="center">Decorator</h1>
-<p align="center"><b>Tape saturation from neural captures of a real pedal.</b><br>
-AU · VST3 · standalone, macOS (Apple silicon)</p>
+# Decorator
+
+**Tape saturation from neural captures of a real pedal.** Free AU, VST3 and standalone app for macOS 12 or later, on Apple silicon and Intel.
+
+### [⬇ Download the installer (Decorator-macOS.pkg)](https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-macOS.pkg)
+
+### [▶ Listen to the live demos](https://alejandrozarco.github.io/decorator/)
+
+**Install in 3 steps:**
+1. Download **[Decorator-macOS.pkg](https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-macOS.pkg)** and double-click it.
+2. If macOS says it *can't verify the developer*, click **Done**. Then open **System Settings → Privacy & Security**, scroll down and click **Open Anyway** next to "Decorator-macOS.pkg". You only need to do this once.
+3. Click through the installer, then quit and reopen your DAW. The plugin is listed as **Decorator** under the manufacturer **Decorator**. In Logic Pro: Audio FX → Audio Units → Decorator.
+
+<sub>Other options: [manual-install zip](https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-macOS.zip) · [all releases](https://github.com/alejandrozarco/decorator/releases) · [the same captures as TONE3000 profiles](https://www.tone3000.com/tones/113208) · [how to uninstall](#uninstall)</sub>
+
+<br clear="right">
 
 ---
+
+## What it is
 
 Decorator is a guitar plugin that recreates a digital tape-saturation stompbox from 2014. The pedal has two knobs on its saturation side:
 
@@ -68,7 +81,22 @@ These were measured against the real pedal through the same interface:
 
 Not modelled: the pedal's other half (a tape doubler/echo), and its hiss. The real unit's noise floor is about −72 dBFS. Saturation settings between capture positions are crossfades and haven't been checked against the pedal yet.
 
-## Build
+## Uninstall
+
+Delete these and restart your DAW:
+- `Decorator.component` from `/Library/Audio/Plug-Ins/Components` or `~/Library/Audio/Plug-Ins/Components`
+- `Decorator.vst3` from `/Library/Audio/Plug-Ins/VST3` or `~/Library/Audio/Plug-Ins/VST3`
+- `Decorator.app` from Applications
+
+If you chose "Install for me only", the files are in the `~/Library` folders and `~/Applications`.
+
+## Troubleshooting
+
+- **The plugin doesn't show up**: quit your DAW completely and open it again. In Logic, open **Logic Pro → Settings → Plug-in Manager**, select Decorator and click **Reset & Rescan Selection**.
+- **"Decorator.pkg can't be opened"**: see step 2 above. macOS shows this for any installer that isn't signed with a paid Apple developer account. The source code is all here if you'd rather build it yourself.
+- **Too quiet or too distorted**: set **Interface dBu** at the bottom of the plugin to your interface's input level at 0 dBFS. Your interface's spec sheet lists it as the maximum instrument input level (at minimum gain). For example, it's 12.5 dBu for a Focusrite Scarlett 3rd Gen.
+
+## Build from source
 
 ```bash
 git clone --recurse-submodules <this repo>
@@ -92,6 +120,8 @@ Use the schemes `macOS-VST3` and `macOS-APP` for the other formats. The build co
 
 Python needs `numpy scipy pillow soundfile pedalboard`, and `ffmpeg` must be installed for the audio.
 
+To make the installer and zip that go on a release, run `release/make_release.sh 0.1.0`. The output lands in `release/dist/`.
+
 ## Layout
 
 ```
@@ -101,6 +131,7 @@ Decorator/                plugin source (iPlug2 project)
   DecoratorAssets.inc     pre-rendered UI bitmaps
   scripts/                UI renderer, asset embedder, iPlug2 build helpers
 demo/                     scripts for the demo audio and images
+release/                  make_release.sh: universal build + .pkg installer + zip
 docs/                     demo page, audio, images
 iPlug2, NeuralAmpModelerCore, AudioDSPTools, eigen   submodules
 ```
