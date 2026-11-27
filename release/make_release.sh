@@ -5,7 +5,7 @@ set -euo pipefail
 V=${1:?version, e.g. 0.1.0}
 ROOT=$(cd "$(dirname "$0")/.." && pwd); W="$ROOT/release/work"; D="$ROOT/release/dist"
 rm -rf -- "$W" "$D"; mkdir -p "$W"/{vst3,au,app} "$D"
-cd "$ROOT/Decorator"
+cd "$ROOT/source/Decorator"
 for s in macOS-AUv2 macOS-VST3 macOS-APP; do
   xcodebuild -project projects/Decorator-macOS.xcodeproj -scheme $s -configuration Release \
     ARCHS="arm64 x86_64" ONLY_ACTIVE_ARCH=NO CODE_SIGN_IDENTITY="-" CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM="" \

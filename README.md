@@ -101,8 +101,8 @@ If you chose "Install for me only", the files are in the `~/Library` folders and
 ```bash
 git clone --recurse-submodules <this repo>
 cd decorator
-iPlug2/Dependencies/IPlug/download-iplug-sdks.sh        # VST3 SDK
-cd Decorator
+source/iPlug2/Dependencies/IPlug/download-iplug-sdks.sh        # VST3 SDK
+cd source/Decorator
 xcodebuild -project projects/Decorator-macOS.xcodeproj -scheme macOS-AUv2 \
   -configuration Release -arch arm64 CODE_SIGN_IDENTITY="-" CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM=""
 ```
@@ -113,8 +113,8 @@ Use the schemes `macOS-VST3` and `macOS-APP` for the other formats. The build co
 
 | What | Script | Output |
 |---|---|---|
-| UI bitmaps (brushed steel, knobs, footswitch, LED) lit from height maps | `Decorator/scripts/render_ui.py` | `resources/img/ui_*@2x.png` |
-| Embed bitmaps in the binary | `Decorator/scripts/embed_assets.py` | `DecoratorAssets.inc` |
+| UI bitmaps (brushed steel, knobs, footswitch, LED) lit from height maps | `source/Decorator/scripts/render_ui.py` | `resources/img/ui_*@2x.png` |
+| Embed bitmaps in the binary | `source/Decorator/scripts/embed_assets.py` | `DecoratorAssets.inc` |
 | README / demo page images | `demo/make_images.py` | `docs/img/` |
 | Demo audio | `demo/make_demos.py <FreePATS bank folder>` | `docs/audio/`, `docs/demos.json` |
 
@@ -125,15 +125,16 @@ To make the installer and zip that go on a release, run `release/make_release.sh
 ## Layout
 
 ```
-Decorator/                plugin source (iPlug2 project)
-  Decorator.cpp/.h        DSP, crossfade, volume curve, UI
-  DecoratorModels.inc     the ten captures (NAM JSON)
-  DecoratorAssets.inc     pre-rendered UI bitmaps
-  scripts/                UI renderer, asset embedder, iPlug2 build helpers
-demo/                     scripts for the demo audio and images
+source/                   everything needed to build
+  Decorator/              plugin source (iPlug2 project)
+    Decorator.cpp/.h      DSP, crossfade, volume curve, UI
+    DecoratorModels.inc   the ten captures (NAM JSON)
+    DecoratorAssets.inc   pre-rendered UI bitmaps
+    scripts/              UI renderer, asset embedder, iPlug2 build helpers
+  iPlug2, NeuralAmpModelerCore, AudioDSPTools, eigen   submodules
 release/                  make_release.sh: universal build + .pkg installer + zip
-docs/                     demo page, audio, images
-iPlug2, NeuralAmpModelerCore, AudioDSPTools, eigen   submodules
+demo/                     scripts for the demo audio and images
+docs/                     live demo page, audio, images
 ```
 
 ## Licence
@@ -141,7 +142,7 @@ iPlug2, NeuralAmpModelerCore, AudioDSPTools, eigen   submodules
 Decorator is free software under the **GNU General Public License v3.0**. See [LICENSE](LICENSE).
 
 It's built on:
-- [NeuralAmpModelerPlugin](https://github.com/sdatkinson/NeuralAmpModelerPlugin), [NeuralAmpModelerCore](https://github.com/sdatkinson/NeuralAmpModelerCore) and [AudioDSPTools](https://github.com/sdatkinson/AudioDSPTools), © Steven Atkinson, MIT. The original notice is in [LICENSE-MIT-NeuralAmpModeler.txt](LICENSE-MIT-NeuralAmpModeler.txt).
+- [NeuralAmpModelerPlugin](https://github.com/sdatkinson/NeuralAmpModelerPlugin), [NeuralAmpModelerCore](https://github.com/sdatkinson/NeuralAmpModelerCore) and [AudioDSPTools](https://github.com/sdatkinson/AudioDSPTools), © Steven Atkinson, MIT. The original notice is in [LICENSE-MIT-NeuralAmpModeler.txt](source/LICENSE-MIT-NeuralAmpModeler.txt).
 - [iPlug2](https://github.com/iPlug2/iPlug2) (zlib-style licence), [Eigen](https://eigen.tuxfamily.org) (MPL 2.0) and the VST3 SDK (MIT).
 - The fonts Montserrat, Archivo Black and Michroma (SIL OFL 1.1) and Roboto (Apache 2.0).
 - The demo audio source: FreePATS Electric Guitar FSBS (direct), CC0 1.0.

@@ -1,12 +1,12 @@
-[submodule "iPlug2"]
-	path = iPlug2
+[submodule "source/iPlug2"]
+	path = source/iPlug2
 	url = https://github.com/sdatkinson/iPlug2.git
-[submodule "eigen"]
-	path = eigen
+[submodule "source/eigen"]
+	path = source/eigen
 	url = https://gitlab.com/libeigen/eigen.git
-[submodule "AudioDSPTools"]
-	path = AudioDSPTools
+[submodule "source/AudioDSPTools"]
+	path = source/AudioDSPTools
 	url = https://github.com/sdatkinson/AudioDSPTools.git
-[submodule "NeuralAmpModelerCore"]
-	path = NeuralAmpModelerCore
+[submodule "source/NeuralAmpModelerCore"]
+	path = source/NeuralAmpModelerCore
 	url = https://github.com/sdatkinson/NeuralAmpModelerCore.git

@@ -4,7 +4,7 @@ plugin draws (Decorator/resources/img/ui_*@2x.png), with the knobs at chosen pos
 import os, math
 from PIL import Image
 HERE = os.path.dirname(os.path.abspath(__file__))
-IMG = os.path.join(HERE, "..", "Decorator", "resources", "img"); OUT = os.path.join(HERE, "..", "docs", "img")
+IMG = os.path.join(HERE, "..", "source", "Decorator", "resources", "img"); OUT = os.path.join(HERE, "..", "docs", "img")
 S = 2  # assets are 2x
 def frames(name, n):
     im = Image.open(os.path.join(IMG, name)).convert("RGBA"); cols = math.ceil(math.sqrt(n))
