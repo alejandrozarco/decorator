@@ -8,7 +8,7 @@
      music made with it CC0)  https://github.com/sfzinstruments/jlearman.jRhodes3d
    - drums: MuldjordKit by Lars Muldjord, FreePATS SFZ version (CC BY 4.0)
      http://freepats.zenvoid.org/Percussion/acoustic-drum-kit.html
-   - organ: FreePATS "Percussive organ emulation", a tonewheel organ sampled from setBfree (CC0 1.0)
+   - organ: FreePATS "Rock organ emulation", a tonewheel organ sampled from setBfree (CC0 1.0)
      http://freepats.zenvoid.org/Organ/electric-organ.html
 2. Runs each phrase through the Decorator VST3 at a few Saturation settings.
 3. Writes MP3s plus docs/demos.json (file list and loudness for the page's level-match toggle).
@@ -26,7 +26,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--guitar", required=True)
 ap.add_argument("--rhodes", required=True, help="jRhodes3d checkout")
 ap.add_argument("--drums", required=True, help="MuldjordKit SFZ+FLAC folder")
-ap.add_argument("--organ", required=True, help="FreePATS PercussiveOrganEmulation SFZ folder")
+ap.add_argument("--organ", required=True, help="FreePATS RockOrganEmulation SFZ folder")
 ap.add_argument("--vst3", default=os.path.expanduser("~/Library/Audio/Plug-Ins/VST3/Decorator.vst3"))
 ap.add_argument("--out", default=os.path.join(os.path.dirname(__file__), "..", "docs", "audio"))
 a = ap.parse_args()
@@ -165,25 +165,24 @@ mel = [(3.0, 72, .5), (3.5, 74, .5), (4.0, 76, 1.5), (7.0, 74, .5), (7.5, 72, .5
 ev += [(t * b, m, 96, d * b) for t, m, d in mel]
 P["rhodes"] = ("Rhodes", render(ev, 8 * 4 * b + 3.0, RHO)); GROUP["rhodes"] = "Rhodes"
 
-# 5b. Organ: original minor-blues groove in C minor, soul-organ style: staccato off-beat stabs over a
-#     walking left hand, a blues lick on top, a held chord to finish. Slight swing. 132 bpm
-b = 60 / 132; sw = 0.58                       # swing: offbeat eighths land at 58 % of the beat
-def at(beat): return (int(beat) + (sw if beat % 1 >= 0.5 else 0.0)) * b
-ev = []
-chords = {"Cm7": [55, 58, 60, 63], "Fm7": [56, 60, 63, 65], "G7": [55, 59, 62, 65], "Ab7": [56, 60, 63, 66]}
-walk = {"Cm7": [36, 39, 43, 46], "Fm7": [41, 44, 48, 51], "G7": [43, 47, 50, 53], "Ab7": [44, 48, 51, 54]}
-form = ["Cm7", "Cm7", "Fm7", "Cm7", "Ab7", "G7", "Cm7", "G7"]
-for bar, c in enumerate(form):
-    t0 = bar * 4
-    for k, m in enumerate(walk[c]): ev.append((at(t0 + k), m, 100, 0.8 * b))           # walking quarter notes
-    for beat in (0.5, 1.5, 3.5) if bar % 2 == 0 else (0.5, 2.5, 3.0):                   # short stabs
-        for m in chords[c]: ev.append((at(t0 + beat), m, 104, 0.22 * b))
-lick = [(16.5, 72, .5), (17, 75, .5), (17.5, 77, .5), (18, 78, .25), (18.25, 77, .25), (18.5, 75, .5), (19, 72, 1),
-        (20.5, 75, .5), (21, 72, .5), (21.5, 70, .5), (22, 72, 1.5), (24, 79, .5), (24.5, 77, .5), (25, 75, .5), (25.5, 74, .5),
-        (26, 72, .5), (26.5, 70, .5), (27, 67, 1)]
-ev += [(at(t), m, 110, d * b * 0.95) for t, m, d in lick]
-for m in [48, 55, 58, 60, 63, 67]: ev.append((at(32), m, 110, 5 * b))                    # final Cm9-ish swell
-P["organ"] = ("Organ groove", render(ev, 37 * b + 2.0, ORG)); GROUP["organ"] = "Organ"
+# 5b. Organ: big rock chords, power-chord voicings (root, fifth, octave, plus the fifth above) in the
+#     middle register, no low bass. C - Eb - F, straight eighths feel, 116 bpm, ends on a held C.
+b = 60 / 116; ev = []
+V = {"C": [48, 55, 60, 67, 72], "Eb": [51, 58, 63, 70, 75], "F": [53, 60, 65, 72, 77], "Bb": [46, 53, 58, 65, 70]}
+# (beat, chord, length in beats, velocity): two-bar phrase  C . . Eb . F . . | C . . Eb . Bb F .
+phrase = [(0, "C", 1.4, 118), (1.5, "C", 0.4, 100), (2, "Eb", 1.4, 118), (3.5, "F", 2.4, 122),
+          (6, "C", 0.9, 112), (7, "Eb", 0.9, 112)]
+for rep in range(4):
+    t0 = rep * 8
+    for beat, c, ln, v in phrase:
+        last_bar_turn = rep == 3 and beat >= 6
+        if last_bar_turn: continue
+        for k, m in enumerate(V[c]): ev.append(((t0 + beat) * b + 0.004 * k, m, v, ln * b))
+# turnaround and the big ending
+for beat, c, ln in ((30, "Bb", 0.9), (31, "F", 0.9)):
+    for m in V[c]: ev.append((beat * b, m, 120, ln * b))
+for m in V["C"] + [79]: ev.append((32 * b, m, 124, 6 * b))
+P["organ"] = ("Organ chords", render(ev, 38 * b + 1.5, ORG)); GROUP["organ"] = "Organ"
 
 # 6. Drums: dense funk groove, 16th hats, no crashes (sustained energy rather than a few loud peaks). 100 bpm
 b = 60 / 100; ev = []
