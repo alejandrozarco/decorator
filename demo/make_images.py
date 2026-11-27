@@ -28,7 +28,7 @@ os.makedirs(OUT, exist_ok=True)
 hero = face(14.0, 12.0); hero.save(os.path.join(OUT, "decorator.png"), optimize=True)
 hero.resize((hero.width // 2, hero.height // 2), Image.LANCZOS).save(os.path.join(OUT, "decorator-small.png"), optimize=True)
 # the demo settings: id, Saturation (hours, 7..17), on
-DEMO = [("off", 9, False), ("sat0900", 9, True), ("sat1130", 11.5, True), ("sat1200", 12, True),
+DEMO = [("off", 9, False), ("sat0900", 9, True), ("sat1030", 10.5, True), ("sat1200", 12, True),
         ("sat0130", 13.5, True), ("sat0300", 15, True), ("sat0500", 17, True)]
 faces = {i: face(h_, 12.0, on) for i, h_, on in DEMO}
 w, h = hero.width // 2, hero.height // 2

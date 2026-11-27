@@ -70,7 +70,7 @@ jobs:
         shell: cmd
         run: |
           cd source
-          cl /nologo /std:c++20 /O2 /EHsc /bigobj /DNAM_ENABLE_A2_FAST /DNDEBUG /Ieigen /INeuralAmpModelerCore /INeuralAmpModelerCore\Dependencies\nlohmann tests\engine_test.cpp NeuralAmpModelerCore\NAM\*.cpp NeuralAmpModelerCore\NAM\wavenet\*.cpp AudioDSPTools\dsp\dsp.cpp /Fe:engine_test.exe
+          cl /nologo /std:c++20 /O2 /EHsc /bigobj /DNOMINMAX /DNAM_ENABLE_A2_FAST /DNDEBUG /Ieigen /INeuralAmpModelerCore /INeuralAmpModelerCore\Dependencies\nlohmann tests\engine_test.cpp NeuralAmpModelerCore\NAM\*.cpp NeuralAmpModelerCore\NAM\wavenet\*.cpp AudioDSPTools\dsp\dsp.cpp /Fe:engine_test.exe
           engine_test.exe
       - name: Build VST3 and app
         shell: pwsh

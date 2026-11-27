@@ -114,7 +114,7 @@ import pedalboard as pb
 plug = pb.load_plugin(a.vst3)
 plug.interface_level_dbu = 12.5
 SETTINGS = [("off", "Off (clean DI)", None, None), ("sat0900", "Saturation 9:00", "9:00", "12:00"),
-            ("sat1130", "Saturation 11:30", "11:30", "12:00"), ("sat1200", "Saturation 12:00", "12:00", "12:00"),
+            ("sat1030", "Saturation 10:30", "10:30", "12:00"), ("sat1200", "Saturation 12:00", "12:00", "12:00"),
             ("sat0130", "Saturation 1:30", "1:30", "12:00"), ("sat0300", "Saturation 3:00", "3:00", "12:00"),
             ("sat0500", "Saturation max", "5:00", "12:00")]
 manifest = {"settings": [{"id": s[0], "label": s[1], "saturation": s[2], "volume": s[3]} for s in SETTINGS], "clips": []}

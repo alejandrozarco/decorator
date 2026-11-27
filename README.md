@@ -1,4 +1,4 @@
-<p><a href="https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-macOS.pkg"><b>⬇ Download for macOS (.pkg installer)</b></a> &nbsp;·&nbsp; <a href="https://alejandrozarco.github.io/decorator/"><b>▶ Live demos</b></a> &nbsp;·&nbsp; <a href="#install-in-3-steps">Install steps</a></p>
+<p><b>⬇ Download:</b> <a href="https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-macOS.pkg"><b>macOS installer</b></a> &nbsp;·&nbsp; <a href="https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-VST3-Windows.zip"><b>Windows VST3</b></a> &nbsp;·&nbsp; <a href="https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-VST3-Linux.zip"><b>Linux VST3</b></a> &nbsp;·&nbsp; <a href="https://alejandrozarco.github.io/decorator/"><b>▶ Live demos</b></a> &nbsp;·&nbsp; <a href="#install">Install steps</a></p>
 
 <img src="docs/img/decorator-small.png" alt="Decorator plugin: brushed-steel pedal with Saturation and Volume knobs" width="150" align="right">
 
@@ -7,24 +7,21 @@
   <img src="docs/img/logo.png" alt="Decorator" width="330">
 </picture>
 
-**Tape saturation from neural captures of a real pedal.** Free AU, VST3 and standalone app for macOS 12 or later, on Apple silicon and Intel.
-
-### [⬇ Download the installer (Decorator-macOS.pkg)](https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-macOS.pkg)
-
-### [▶ Listen to the live demos](https://alejandrozarco.github.io/decorator/)
-
-### Install in 3 steps
-1. Download **[Decorator-macOS.pkg](https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-macOS.pkg)** and double-click it.
-2. If macOS says it *can't verify the developer*, click **Done**. Then open **System Settings → Privacy & Security**, scroll down and click **Open Anyway** next to "Decorator-macOS.pkg". You only need to do this once.
-3. Click through the installer, then quit and reopen your DAW. The plugin is listed as **Decorator** under the manufacturer **Decorator**. In Logic Pro: Audio FX → Audio Units → Decorator.
-
-**Just one format?** Direct downloads: [VST3](https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-VST3-macOS.zip) · [AU](https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-AU-macOS.zip) · [Standalone app](https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-App-macOS.zip) · [all three (zip)](https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-macOS.zip). Each zip has a READ ME. Copy the file into the folder it names, then paste one Terminal line to unblock it. That step is needed because the files aren't signed with a paid Apple developer account. The .pkg installer above skips it.
-
-<sub>macOS only for now (12 or later, Apple silicon and Intel). There's no Windows or Linux build yet. Also: [the same captures as TONE3000 profiles](https://www.tone3000.com/tones/113208) · [all releases](https://github.com/alejandrozarco/decorator/releases) · [uninstall](#uninstall)</sub>
+**Tape saturation from neural captures of a real pedal.** Free VST3 for macOS, Windows and Linux, plus AU and standalone apps.
 
 <br clear="right">
 
----
+## Install
+
+| | Download | Install |
+|---|---|---|
+| **macOS** 12+ (Apple silicon and Intel) | **[Decorator-macOS.pkg](https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-macOS.pkg)**: AU, VST3 and app | Double-click it. If macOS says it *can't verify the developer*, click **Done**, open **System Settings → Privacy & Security**, and click **Open Anyway**. Then click through the installer. |
+| **Windows** 10/11, 64-bit | **[Decorator-VST3-Windows.zip](https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-VST3-Windows.zip)** ([with standalone app](https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-Windows.zip)) | Unzip it, then copy the `Decorator.vst3` folder into `C:\Program Files\Common Files\VST3`. If SmartScreen warns, click **More info → Run anyway**. |
+| **Linux** x86_64 | **[Decorator-VST3-Linux.zip](https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-VST3-Linux.zip)** ([VST3 + LV2 + CLAP](https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-Linux.zip)) | Unzip it, then copy `Decorator.vst3` into `~/.vst3`. LV2 goes in `~/.lv2` and CLAP in `~/.clap`. |
+
+Then restart your DAW. The plugin is listed as **Decorator** under the manufacturer **Decorator**. In Logic Pro: Audio FX → Audio Units → Decorator.
+
+<sub>Mac, single formats: [VST3](https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-VST3-macOS.zip) · [AU](https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-AU-macOS.zip) · [app](https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-App-macOS.zip). Each zip has a READ ME with a one-line Terminal command to unblock it. The files aren't signed with a paid Apple or Microsoft developer account, so the system warns once. Linux hosts show standard controls instead of the pedal graphics. Also: [the same captures as TONE3000 profiles](https://www.tone3000.com/tones/113208) · [all releases](https://github.com/alejandrozarco/decorator/releases) · [uninstall](#uninstall)</sub>
 
 ## What it is
 
@@ -58,14 +55,14 @@ At a capture position the plugin runs exactly the same model as the matching TON
 
 Or download the MP3s. Volume is at 12:00 in all of them, and the levels are real, not loudness-matched:
 
-| Clip | Clean DI | Sat 9:00 | Sat 11:30* | Sat 12:00 | Sat 1:30* | Sat 3:00 | Sat max |
+| Clip | Clean DI | Sat 9:00 | Sat 10:30* | Sat 12:00 | Sat 1:30* | Sat 3:00 | Sat max |
 |---|---|---|---|---|---|---|---|
-| Open chords | [▶](docs/audio/chords_off.mp3) | [▶](docs/audio/chords_sat0900.mp3) | [▶](docs/audio/chords_sat1130.mp3) | [▶](docs/audio/chords_sat1200.mp3) | [▶](docs/audio/chords_sat0130.mp3) | [▶](docs/audio/chords_sat0300.mp3) | [▶](docs/audio/chords_sat0500.mp3) |
-| Arpeggios | [▶](docs/audio/arpeggios_off.mp3) | [▶](docs/audio/arpeggios_sat0900.mp3) | [▶](docs/audio/arpeggios_sat1130.mp3) | [▶](docs/audio/arpeggios_sat1200.mp3) | [▶](docs/audio/arpeggios_sat0130.mp3) | [▶](docs/audio/arpeggios_sat0300.mp3) | [▶](docs/audio/arpeggios_sat0500.mp3) |
-| Lead line | [▶](docs/audio/lead_off.mp3) | [▶](docs/audio/lead_sat0900.mp3) | [▶](docs/audio/lead_sat1130.mp3) | [▶](docs/audio/lead_sat1200.mp3) | [▶](docs/audio/lead_sat0130.mp3) | [▶](docs/audio/lead_sat0300.mp3) | [▶](docs/audio/lead_sat0500.mp3) |
-| Low riff | [▶](docs/audio/riff_off.mp3) | [▶](docs/audio/riff_sat0900.mp3) | [▶](docs/audio/riff_sat1130.mp3) | [▶](docs/audio/riff_sat1200.mp3) | [▶](docs/audio/riff_sat0130.mp3) | [▶](docs/audio/riff_sat0300.mp3) | [▶](docs/audio/riff_sat0500.mp3) |
+| Open chords | [▶](docs/audio/chords_off.mp3) | [▶](docs/audio/chords_sat0900.mp3) | [▶](docs/audio/chords_sat1030.mp3) | [▶](docs/audio/chords_sat1200.mp3) | [▶](docs/audio/chords_sat0130.mp3) | [▶](docs/audio/chords_sat0300.mp3) | [▶](docs/audio/chords_sat0500.mp3) |
+| Arpeggios | [▶](docs/audio/arpeggios_off.mp3) | [▶](docs/audio/arpeggios_sat0900.mp3) | [▶](docs/audio/arpeggios_sat1030.mp3) | [▶](docs/audio/arpeggios_sat1200.mp3) | [▶](docs/audio/arpeggios_sat0130.mp3) | [▶](docs/audio/arpeggios_sat0300.mp3) | [▶](docs/audio/arpeggios_sat0500.mp3) |
+| Lead line | [▶](docs/audio/lead_off.mp3) | [▶](docs/audio/lead_sat0900.mp3) | [▶](docs/audio/lead_sat1030.mp3) | [▶](docs/audio/lead_sat1200.mp3) | [▶](docs/audio/lead_sat0130.mp3) | [▶](docs/audio/lead_sat0300.mp3) | [▶](docs/audio/lead_sat0500.mp3) |
+| Low riff | [▶](docs/audio/riff_off.mp3) | [▶](docs/audio/riff_sat0900.mp3) | [▶](docs/audio/riff_sat1030.mp3) | [▶](docs/audio/riff_sat1200.mp3) | [▶](docs/audio/riff_sat0130.mp3) | [▶](docs/audio/riff_sat0300.mp3) | [▶](docs/audio/riff_sat0500.mp3) |
 
-\* Between capture positions: the plugin crossfades the 11:00/12:00 and 1:00/2:00 captures here.
+\* Between capture positions: the plugin crossfades the 10:00/11:00 and 1:00/2:00 captures here.
 
 The demo guitar is the [FreePATS "Electric Guitar FSBS (direct)"](http://freepats.zenvoid.org/ElectricGuitar/clean-electric-guitar.html) sample bank, a raw DI recording of a Fender guitar released under **CC0 1.0**. The phrases are played from that bank at a typical single-coil level of about −30 dBFS RMS, then run through the plugin alone, with no amp or cab. `demo/make_demos.py` rebuilds everything.
 
