@@ -15,7 +15,9 @@
 2. If macOS says it *can't verify the developer*, click **Done**. Then open **System Settings → Privacy & Security**, scroll down and click **Open Anyway** next to "Decorator-macOS.pkg". You only need to do this once.
 3. Click through the installer, then quit and reopen your DAW. The plugin is listed as **Decorator** under the manufacturer **Decorator**. In Logic Pro: Audio FX → Audio Units → Decorator.
 
-<sub>Other options: [manual-install zip](https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-macOS.zip) · [all releases](https://github.com/alejandrozarco/decorator/releases) · [the same captures as TONE3000 profiles](https://www.tone3000.com/tones/113208) · [how to uninstall](#uninstall)</sub>
+**Just one format?** Direct downloads: [VST3](https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-VST3-macOS.zip) · [AU](https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-AU-macOS.zip) · [Standalone app](https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-App-macOS.zip) · [all three (zip)](https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-macOS.zip). Each zip has a READ ME. Copy the file into the folder it names, then paste one Terminal line to unblock it. That step is needed because the files aren't signed with a paid Apple developer account. The .pkg installer above skips it.
+
+<sub>macOS only for now (12 or later, Apple silicon and Intel). There's no Windows or Linux build yet. Also: [the same captures as TONE3000 profiles](https://www.tone3000.com/tones/113208) · [all releases](https://github.com/alejandrozarco/decorator/releases) · [uninstall](#uninstall)</sub>
 
 <br clear="right">
 
