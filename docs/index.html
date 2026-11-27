@@ -26,7 +26,8 @@ main { max-width: 980px; margin: 0 auto; padding: 32px 16px 64px; }
 header { display: flex; gap: 28px; align-items: center; margin-bottom: 28px; }
 header img { width: 120px; height: auto; flex: none; filter: drop-shadow(0 6px 14px rgba(0,0,0,.25)); }
 h1 { margin: 0 0 4px; font-size: 32px; letter-spacing: .02em; }
-.sub { margin: 0; color: var(--muted); max-width: 60ch; }
+.sub a { color: var(--accent); }
+.sub { margin: 0 0 6px; color: var(--muted); max-width: 60ch; }
 .controls { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; margin: 0 0 18px; color: var(--muted); font-size: 14px; }
 .controls label { display: inline-flex; gap: 8px; align-items: center; cursor: pointer; }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px; margin-bottom: 16px; display: grid; grid-template-columns: 76px 1fr; gap: 18px; align-items: center; }
@@ -57,6 +58,7 @@ canvas.wave { width: 100%; height: 48px; display: block; cursor: pointer; margin
     <div>
       <h1>Decorator</h1>
       <p class="sub">Tape saturation built from neural captures of a real stompbox. Press play, then switch between the clean DI and the plugin while the clip keeps playing.</p>
+      <p class="sub">The same ten captures are on TONE3000 as a <a href="https://www.tone3000.com/tones/113208">NAM profile pack</a>, with one profile per Saturation step. The plugin turns them into continuous Saturation and Volume knobs. Source: <a href="https://github.com/alejandrozarco/decorator">GitHub</a>.</p>
     </div>
   </header>
 

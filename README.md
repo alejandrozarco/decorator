@@ -17,6 +17,19 @@ The plugin has the same two knobs and a bypass footswitch, on a brushed-steel fa
 
 Behind the knobs are **ten [Neural Amp Modeler](https://github.com/sdatkinson/neural-amp-modeler) A2 captures** of the real pedal. They were taken at Saturation 7:00, 8:30, 9:00, 10:00, 11:00, 12:00, 1:00, 2:00, 3:00 and 4:00, with Volume at maximum. The captures are embedded in the plugin, so there are no files to load.
 
+## The TONE3000 version
+
+The same ten captures are also on TONE3000 as a pack of NAM profiles: **[tone3000.com/tones/113208](https://www.tone3000.com/tones/113208)**.
+
+| | TONE3000 pack | Decorator plugin |
+|---|---|---|
+| Captures | the same ten NAM A2 models | the same ten, embedded |
+| Saturation | ten fixed steps: load one profile per setting | a continuous knob that crossfades neighbouring captures |
+| Volume | output level fixed to roughly the pedal's Volume at 12:45 | the full Volume knob, using the measured curve |
+| Runs in | any NAM host (TONE3000, NAM plugin, ...) | its own AU / VST3 / app |
+
+At a capture position, with Volume at about 12:40, the plugin and the matching TONE3000 profile sound the same: the null is below −90 dB with calibrated input. The pack is the easiest way to use one setting in a NAM rig. The plugin adds the knobs between the steps.
+
 ## Listen
 
 <p align="center"><img src="docs/img/settings.png" alt="The five demo settings: bypassed, then Saturation 9:00, 12:00, 3:00 and max" width="640"></p>
