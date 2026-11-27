@@ -1,3 +1,5 @@
+<p><a href="https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-macOS.pkg"><b>⬇ Download for macOS (.pkg installer)</b></a> &nbsp;·&nbsp; <a href="https://alejandrozarco.github.io/decorator/"><b>▶ Live demos</b></a> &nbsp;·&nbsp; <a href="#install-in-3-steps">Install steps</a></p>
+
 <img src="docs/img/decorator-small.png" alt="Decorator plugin: brushed-steel pedal with Saturation and Volume knobs" width="150" align="right">
 
 # Decorator
@@ -8,7 +10,7 @@
 
 ### [▶ Listen to the live demos](https://alejandrozarco.github.io/decorator/)
 
-**Install in 3 steps:**
+### Install in 3 steps
 1. Download **[Decorator-macOS.pkg](https://github.com/alejandrozarco/decorator/releases/latest/download/Decorator-macOS.pkg)** and double-click it.
 2. If macOS says it *can't verify the developer*, click **Done**. Then open **System Settings → Privacy & Security**, scroll down and click **Open Anyway** next to "Decorator-macOS.pkg". You only need to do this once.
 3. Click through the installer, then quit and reopen your DAW. The plugin is listed as **Decorator** under the manufacturer **Decorator**. In Logic Pro: Audio FX → Audio Units → Decorator.
