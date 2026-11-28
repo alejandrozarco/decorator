@@ -21,7 +21,8 @@ protected:
   {
     return "Tape saturation from ten neural captures of a real pedal. Saturation crossfades the captures; "
            "Volume follows the curve measured on the pedal; set Interface level to your interface's input level "
-           "at 0 dBFS.";
+           "at 0 dBFS. Demos: https://alejandrozarco.github.io/decorator/ . Free software under the GNU GPL v3, "
+           "provided without warranty; not affiliated with or endorsed by any pedal manufacturer.";
   }
   const char* getMaker() const override { return "Decorator"; }
   const char* getHomePage() const override { return "https://github.com/alejandrozarco/decorator"; }

@@ -2,6 +2,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <filesystem>
+#include <functional>
 
 #include "../NeuralAmpModelerCore/NAM/get_dsp.h"
 
@@ -172,6 +173,143 @@ public:
 private:
   bool mPressed = false;
 };
+
+constexpr const char* kDemoURL = "https://alejandrozarco.github.io/decorator/";
+constexpr const char* kRepoURL = "https://github.com/alejandrozarco/decorator";
+
+// Small text link in the footer; underlines on hover.
+class FooterLink : public IControl
+{
+public:
+  FooterLink(const IRECT& bounds, const char* label, std::function<void(IControl*)> onClick)
+  : IControl(bounds)
+  , mLabel(label)
+  {
+    SetActionFunction(onClick);
+  }
+  void Draw(IGraphics& g) override
+  {
+    const IColor c = mMouseIsOver ? IColor(255, 235, 232, 224) : IColor(255, 160, 158, 152);
+    g.DrawText(IText(10.f, c, "Roboto-Regular", EAlign::Far), mLabel.Get(), mRECT);
+    if (mMouseIsOver)
+    {
+      IRECT tr;
+      g.MeasureText(IText(10.f, c, "Roboto-Regular", EAlign::Far), mLabel.Get(), tr);
+      const float w = tr.W();
+      g.DrawLine(c, mRECT.R - w, mRECT.MH() + 6.f, mRECT.R, mRECT.MH() + 6.f);
+    }
+  }
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
+  {
+    if (auto f = GetActionFunction())
+      f(this);
+  }
+  void OnMouseOver(float x, float y, const IMouseMod& mod) override
+  {
+    GetUI()->SetMouseCursor(ECursor::HAND);
+    IControl::OnMouseOver(x, y, mod);
+  }
+  void OnMouseOut() override
+  {
+    GetUI()->SetMouseCursor();
+    IControl::OnMouseOut();
+  }
+
+private:
+  WDL_String mLabel;
+};
+
+// About panel drawn over the pedal: disclaimer, licence, credits, links. Click a button or anywhere else to close.
+class AboutPanel : public IControl
+{
+public:
+  AboutPanel(const IRECT& bounds)
+  : IControl(bounds)
+  {
+    Hide(true);
+  }
+  void Draw(IGraphics& g) override
+  {
+    g.FillRect(IColor(170, 0, 0, 0), mRECT);
+    const IRECT card = Card();
+    g.FillRoundRect(IColor(250, 32, 31, 29), card, 10.f);
+    g.DrawRoundRect(IColor(255, 70, 68, 64), card, 10.f);
+    const IColor ink(255, 236, 233, 226), muted(255, 170, 167, 160);
+    float y = card.T + 22.f;
+    g.DrawText(IText(17.f, ink, "Montserrat-Bold"), "DECORATOR", IRECT(card.L, y - 10, card.R, y + 10));
+    y += 18.f;
+    g.DrawText(IText(10.5f, muted, "Roboto-Regular"), "tape saturation  -  version " PLUG_VERSION_STR,
+               IRECT(card.L, y - 7, card.R, y + 7));
+    y += 22.f;
+    for (const char* line : kLines)
+    {
+      if (line[0] == '\0')
+      {
+        y += 7.f;
+        continue;
+      }
+      const bool head = line[0] == '#';
+      g.DrawText(IText(head ? 11.5f : 10.5f, head ? ink : muted, head ? "Montserrat-Bold" : "Roboto-Regular",
+                       EAlign::Near),
+                 head ? line + 1 : line, IRECT(card.L + 18.f, y - 7, card.R - 18.f, y + 7));
+      y += head ? 17.f : 14.5f;
+    }
+    DrawButton(g, DemoButton(), "Listen to the demos", true);
+    DrawButton(g, RepoButton(), "Source code & full licence", false);
+    g.DrawText(IText(10.f, muted, "Roboto-Regular"), "click anywhere to close",
+               IRECT(card.L, card.B - 20.f, card.R, card.B - 6.f));
+  }
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
+  {
+    if (DemoButton().Contains(x, y))
+      GetUI()->OpenURL(kDemoURL);
+    else if (RepoButton().Contains(x, y))
+      GetUI()->OpenURL(kRepoURL);
+    Hide(true);
+    GetUI()->SetAllControlsDirty();
+  }
+
+private:
+  IRECT Card() const { return mRECT.GetPadded(-14.f).GetVShifted(-4.f); }
+  IRECT DemoButton() const
+  {
+    const IRECT c = Card();
+    return IRECT(c.L + 18.f, c.B - 92.f, c.R - 18.f, c.B - 64.f);
+  }
+  IRECT RepoButton() const
+  {
+    const IRECT c = Card();
+    return IRECT(c.L + 18.f, c.B - 58.f, c.R - 18.f, c.B - 30.f);
+  }
+  void DrawButton(IGraphics& g, const IRECT& r, const char* label, bool primary)
+  {
+    g.FillRoundRect(primary ? IColor(255, 196, 52, 34) : IColor(255, 58, 56, 52), r, 6.f);
+    g.DrawText(IText(11.5f, IColor(255, 250, 248, 244), "Montserrat-Bold"), label, r);
+  }
+  static constexpr const char* kLines[] = {
+    "#What it is",
+    "Ten neural captures of a hardware tape-",
+    "saturation pedal, crossfaded by the",
+    "Saturation knob. Volume follows the curve",
+    "measured on the pedal.",
+    "",
+    "#Disclaimer",
+    "Not affiliated with or endorsed by any",
+    "pedal manufacturer. Provided as is,",
+    "without any warranty.",
+    "",
+    "#Licence",
+    "Free software under the GNU General Public",
+    "License v3. You may use, share and change",
+    "it under the terms of that licence.",
+    "",
+    "#Built with",
+    "NeuralAmpModelerCore and AudioDSPTools",
+    "(MIT, (c) Steven Atkinson), iPlug2, Eigen",
+    "(MPL 2.0), VST3 SDK (MIT). Fonts under the",
+    "SIL OFL 1.1 and Apache 2.0 licences.",
+  };
+};
 } // namespace
 
 Decorator::Decorator(const InstanceInfo& info)
@@ -218,6 +356,17 @@ Decorator::Decorator(const InstanceInfo& info)
     pGraphics->AttachControl(new ITextControl(foot.GetReducedFromLeft(124).GetVShifted(6), "loading...",
                                               IText(11, muted, "Roboto-Regular", EAlign::Far)),
                              kCtrlTagStatus);
+
+    // footer links + about panel
+    auto* about = new AboutPanel(b);
+    pGraphics->AttachControl(new FooterLink(IRECT(foot.R - 92.f, foot.T + 1.f, foot.R - 46.f, foot.T + 13.f), "Demos",
+                                            [](IControl* c) { c->GetUI()->OpenURL(kDemoURL); }));
+    pGraphics->AttachControl(new FooterLink(IRECT(foot.R - 40.f, foot.T + 1.f, foot.R, foot.T + 13.f), "About",
+                                            [about](IControl* c) {
+                                              about->Hide(false);
+                                              c->GetUI()->SetAllControlsDirty();
+                                            }));
+    pGraphics->AttachControl(about);
   };
 }
 
